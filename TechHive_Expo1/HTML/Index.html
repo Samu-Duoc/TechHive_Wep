@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../CSS/global.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>TechHive</title>
+</head>
+<body>
+  <!-- Nav bar mucho mas lindo -->
+  <header>
+    <div class="container nav">
+
+      <!-- LOGOTIPO Y MARCA -->
+      <a class="brand" href="Index.html">
+        <img src="../img/logo.jpg" alt="TechHive Logo" class="logo-img">
+        <strong>TechHive</strong>
+        
+      </a>
+  
+      <nav class="navlinks" id="navlinks">
+        <a href="Index.html">Inicio</a>
+        <a href="productos.html">Productos</a>
+        <a href="contacto.html">Contacto</a>
+        <div class="dropdown" style="display: inline-block;">
+          <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Cuenta
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="login.html">Iniciar Sesión</a></li>
+            <li><a class="dropdown-item" href="registro.html">Registrarse</a></li>
+          </ul>
+        </div>
+        <img class="carrito" src="../img/carrito-de-compras.png" alt="Carrito de compras" style="display: inline-block; vertical-align: middle; margin-left: 15px; cursor: pointer;" data-bs-toggle="offcanvas" data-bs-target="#carritoOffcanvas" aria-controls="carritoOffcanvas">
+      </nav>
+    </div>
+  </header>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="Index.html">Inicio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="productos.html">Productos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="contacto.html">Contacto</a>
+        </li>
+        
+      </ul>
+      <div class="d-flex">
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Cuenta
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="login.html">Iniciar Sesión</a></li>
+            <li><a class="dropdown-item" href="registro.html">Registrarse</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<br>
+<div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+  <div class="carousel-indicators">
+    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+  </div>
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <img src="../img/carucel/JBL.jpg" class="d-block w-100" alt="...">
+    </div>
+    <div class="carousel-item">
+      <img src="../img/carucel/logifeat.jpg" class="d-block w-100" alt="...">
+    </div>
+    <div class="carousel-item">
+      <img src="../img/carucel/Samsungoferta.jpg" class="d-block w-100" alt="...">
+    </div>
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+
+<!-- Contenido principal -->
+<main class="container mt-5">
+  <article>
+    <h1 class="text-center mb-4">Nuestra historia</h1>
+    <div class="row align-items-start">
+      <div class="col-md-4">
+        <img class="img-fluid rounded" src="../img/logo.jpg" alt="TechHive Logo" />
+      </div>
+      <div class="col-md-8">
+        <p class="text-justify">En TechHive creemos que la tecnología no tiene por qué ser inaccesible ni desechable. Nacimos con la idea de acercar la innovación a todas las personas, ofreciendo artículos tecnológicos nuevos y reacondicionados que combinan calidad, buen precio y un compromiso real con el planeta.
+        Sabemos que cada dispositivo tiene más de una vida, y queremos demostrarlo fomentando el consumo responsable y el reciclaje electrónico. Así, cada compra no solo significa llevarse un producto confiable, sino también ser parte de una comunidad que apuesta por la sustentabilidad.
+        Hoy trabajamos para mejorar y crecer junto a nuestros clientes. Estamos desarrollando una plataforma digital pensada para que la experiencia de compra sea más ágil, cercana y segura, optimizando la gestión de inventario, la atención personalizada y el acceso a tecnología para todos.
+        En TechHive, nuestro propósito es claro: construir un futuro donde la tecnología sea accesible, responsable y sustentable.</p>
+      </div>
+    </div>
+  </article>
+</main>
+
+<!-- Offcanvas del Carrito -->
+<div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="true" tabindex="-1" id="carritoOffcanvas" aria-labelledby="carritoOffcanvasLabel">
+  <div class="offcanvas-header" style="background: var(--surface); color: #DCDED4;">
+    <h5 class="offcanvas-title" id="carritoOffcanvasLabel">
+      🛒 Carrito de Compras
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body" style="background: var(--bg);">
+    <div class="productosCompra" id="productosCompra">
+      <!-- Los productos del carrito se cargarán aquí dinámicamente -->
+      <p class="text-muted">Tu carrito está vacío</p>
+    </div>
+    
+    <!-- Total del carrito -->
+    <div class="mt-auto">
+      <hr style="border-color: var(--border);">
+      <div class="total d-flex justify-content-between align-items-center mb-3" id="total">
+        <strong style="color: var(--text);">Total: $0</strong>
+      </div>
+      <div class="d-grid gap-2">
+        <button class="btn w-100" id="finalizarCompra" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none;">
+          Finalizar Compra
+        </button>
+        <button class="btn btn-outline-danger w-100" id="vaciarCarrito">
+          Vaciar Carrito
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="../JS/main.js"></script>
+</body>
+</html>

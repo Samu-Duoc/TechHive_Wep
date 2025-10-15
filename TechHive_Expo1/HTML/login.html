@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../CSS/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-Yo12wWUeC8X1h7YlNv0oBv6f9/V5WtM2PAE9mRiFQwF6f3QJnI6HscfrF3YhQ7PwChDL8AJ+ScGdgLZcQuZmCw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="../CSS/auth.css">
+    <title>Login - TechHive</title>
+</head>
+<body>
+    <!-- Nav bar mucho mas lindo -->
+    <header>
+        <div class="container nav">
+            <!-- LOGOTIPO Y MARCA -->
+            <a class="brand" href="Index.html">
+                <img src="../img/logo.jpg" alt="TechHive Logo" class="logo-img">
+                <strong>TechHive</strong>
+            </a>
+      
+            <nav class="navlinks" id="navlinks">
+                <a href="Index.html">Inicio</a>
+                <a href="productos.html">Productos</a>
+                <a href="contacto.html">Contacto</a>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Cuenta
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="login.html">Iniciar Sesión</a></li>
+                        <li><a class="dropdown-item" href="registro.html">Registrarse</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <form id="login-form">
+                <h1>Iniciar Sesión</h1>
+                
+                <div class="form-input usuario">
+                    <input type="text" id="usuario" placeholder="Usuario" required>
+                    <p class="mensaje-error"></p>
+                </div>
+                
+                <div class="form-input password">
+                    <input type="password" id="password" placeholder="Contraseña" required>
+                    <p class="mensaje-error"></p>
+                </div>
+                
+                <div class="checkbox-container">
+                    <input type="checkbox" id="recordar">
+                    <label for="recordar">Recordar contraseña</label>
+                </div>
+                
+                <button type="submit">Ingresar</button>
+            </form>
+            
+            <div class="switch-form">
+                <span class="text">¿No tienes una cuenta?</span>
+                <a href="registro.html" class="btn">Registrarse</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="../JS/auth.js"></script>
+</body>
+</html>

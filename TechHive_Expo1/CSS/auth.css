@@ -1,0 +1,246 @@
+/* CSS UNIFICADO PARA LOGIN Y REGISTRO */
+
+/* Paleta de colores TechHive */
+:root {
+  --primary: #E7B62B;
+  --primary-dark: #A76D15;
+  --primary-darker: #63431A;
+  --neutral-light: #DCDED4;
+  --secondary: #344474;
+  --accent: #3C545C;
+  --dark: #2E3948;
+  --neutral-medium: #76756C;
+  --dark-green: #2E3531;
+  --black: #111013;
+}
+
+/* Cuerpo y posición */
+body {
+    margin: 0;
+    background: linear-gradient(135deg, var(--neutral-light), var(--neutral-medium));
+    background-size: cover;
+    background-position: center;
+    font-family: 'Nunito Sans', Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: var(--black);
+}
+
+/* Contenedor principal para el formulario */
+.container:not(.nav) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    padding: 20px;
+    perspective: 1000px;
+}
+
+/* Card unificada para login y registro */
+.card {
+    width: 350px;
+    min-height: 450px;
+    position: relative;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid var(--primary);
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    box-shadow: 0 8px 25px rgba(231, 182, 43, 0.2);
+    padding: 25px;
+    box-sizing: border-box;
+    color: var(--black);
+    backdrop-filter: blur(10px);
+}
+
+/* Formularios */
+form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    position: relative;
+}
+
+/* Contenedor de inputs con validación */
+.form-input {
+    margin-bottom: 12px;
+    position: relative;
+}
+
+/* Estilos de los inputs */
+input {
+    margin-bottom: 3px;
+    padding: 10px;
+    font-size: 0.9rem;
+    border: 2px solid var(--neutral-medium);
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--black);
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 8px rgba(231, 182, 43, 0.3);
+    background: white;
+}
+
+/* Mensajes de error */
+.mensaje-error {
+    color: #ff0000;
+    font-size: 0.7rem;
+    margin: 0;
+    margin-top: 3px;
+    min-height: 12px;
+    transition: opacity 0.3s ease;
+}
+
+/* Botones principales */
+button[type="submit"] {
+    padding: 12px;
+    font-size: 1rem;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(231, 182, 43, 0.3);
+}
+
+button[type="submit"]:hover {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-darker));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(231, 182, 43, 0.4);
+}
+
+/* Contenedor del checkbox */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px;
+}
+
+.checkbox-container input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+.checkbox-container label {
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin: 0;
+}
+
+/* Sección de cambio de formulario */
+.switch-form {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.switch-form .text {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    color: var(--dark);
+}
+
+.switch-form .btn {
+    background-color: transparent;
+    color: var(--secondary);
+    border: 2px solid var(--secondary);
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.switch-form .btn:hover {
+    background-color: var(--secondary);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(52, 68, 116, 0.3);
+}
+
+/* Títulos de los formularios */
+h1 {
+    color: var(--dark);
+    text-align: center;
+    margin-bottom: 20px;
+    margin-top: 0;
+    font-size: 1.4rem;
+    font-family: 'Audiowide', Arial, sans-serif;
+    font-weight: 600;
+}
+
+/* Efectos de visibilidad de contraseña */
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.password-toggle i {
+    font-size: 1rem;
+    color: var(--dark);
+}
+
+.password-visible i.fa-eye-slash {
+    display: none;
+}
+
+/* Estados de validación */
+.form-input.valid input {
+    border-color: var(--primary);
+    box-shadow: 0 0 5px rgba(231, 182, 43, 0.3);
+}
+
+.form-input.invalid input {
+    border-color: #dc3545;
+    box-shadow: 0 0 5px rgba(220, 53, 69, 0.3);
+}
+
+/* Animaciones */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .card {
+        width: 90%;
+        min-height: auto;
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 1.1rem;
+    }
+    
+    input {
+        font-size: 0.8rem;
+        padding: 6px;
+    }
+}

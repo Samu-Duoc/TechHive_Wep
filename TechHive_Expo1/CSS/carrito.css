@@ -1,0 +1,243 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: #111013;
+}
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #DCDED4;
+    padding: 80px;
+}
+
+h1 {
+    font-family: 'Nunito Sans';
+    text-align: center;
+    margin: 30px 0px;
+}
+
+img{
+    width: 320px;
+    height: 340px;
+    object-fit: cover;
+    border-radius: 20px 20px 0px 0px;
+}
+header{
+    display: felx;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    height: 70px;
+    top: 0;
+    position: fixed;
+    white: 100%;
+}
+
+.scroll{
+    background-color: #E7B62B;
+    box-shadow: .1rem .2rem .3rem #344474;
+}
+
+.scroll img{
+    filter: invert(15%);
+}
+
+.scroll h1{
+    color: #344474;
+}
+
+.carrito{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 50px;
+    margin-bottom: 20px;
+}
+
+.contenedor>div{
+    box-shadow: 0px 0px 5px 0px black;
+    background-color: #63431A;
+    border-radius: 20px;
+}
+.contenedor>div:hover{
+    background-color: #A76D15;
+}
+
+.informacion>p:first-child{
+    font-family: 'Nunito Sans';
+    font-size: 25px;
+    font-weight: 300;
+}
+
+.informacion .precio span{
+    font-size: 100px;
+    font-weight: 300;
+}
+
+.informacion button{
+    background-color: #3C545C;
+    width: 100%;
+    height: 35px;
+    border-radius: 10px;
+    border: none;
+
+    font-size: 17px;
+    font-weight: 300;
+    cursor:pointer;
+}
+
+.informacion button:hover{
+    background-color: #2D4263;
+}
+
+.informacion button:active{
+    background-color: white;
+    color: black;
+}
+
+.diseñoNumero{
+    padding: 10px;
+    background-color: red;
+    border-radius: 100%;
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+    position: relative;
+    top: -50px;
+
+    left: 30px;
+    z-idex: 1px;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.conteinerCompra{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    background-color: black;
+    flex-direction: column;
+    gap: 35px;
+}
+
+.informacionCompra{
+    white: 500px;
+    height: 500px;
+    background-color: #2D4263;
+    border-radius: 25px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    position: fixed;
+}
+
+.indormacionCompra h2{
+    font-weight: 300;
+    margin: 20px;
+    font-size: 32px;
+    width: 100%;
+}
+
+.x{
+    padding-top: 30px;
+    padding-right: 30px;
+    cursor: pointer;
+    font-size: 20px;
+    color: white;
+}
+
+.productosCompra{
+    font-size: 17px;
+    position: relative;
+    z-index: 1;
+    display : flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    width: 450px;
+    height: 30px;
+    overflow-y: auto;
+    margin-top: 50px;
+}
+
+.productosCompra>div{
+    margin: 0px 45px;
+    padding: 20px 0px;
+    width: auto;
+    border-bottom: 1px dotted black;
+    display: flex;
+    justify-content: space-between;
+}
+
+.productosCompra ::-webkit-scrollbar{
+    width: 7px;
+    background-color: black;
+    border-redius: 5px;
+}
+
+.productosCompra ::-webkit-scrollbar-thumb{
+    background-color: #E7B62B;
+    border-radius: 3px;
+}
+
+.img{
+    display : flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.productosCompra img{
+    width: 25px;
+    height: auto;
+    margin-right: 10px;
+    border-bottom: none;
+    cursor: pointer;
+}
+
+.total span{
+    font-weight: 300;
+}
+
+.containerCompra button{
+    z-index: 1;
+    background-color: #3C545C;
+    width: 300px;
+    height: 45px;
+    border-radius: 10px;
+    border: none;
+
+    font-size: 17px;
+    font-weight: 300;
+}
+
+.containerCompra button:hover{
+    background-color: white;
+    color: black;
+}
+
+.none>div,
+.none button,
+.none p {
+    width: 0px;
+    height: 0px;
+    font-size: 0px;
+    border: 0px;
+}
+
+.solOut{
+    background-color: red;
+    padding: 7px  10px;
+    border-radius: 10px;
+}
+
+.botonTrash{
+    background-color: black;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

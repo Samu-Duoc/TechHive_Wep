@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../CSS/global.css">
+    <link rel="stylesheet" href="../CSS/productos.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <title>Productos - TechHive</title>
+</head>
+<body>
+    <header>
+    <div class="container nav">
+
+      <!-- LOGOTIPO -->
+      <a class="brand" href="Index.html">
+        <img src="../img/logo.jpg" alt="TechHive Logo" class="logo-img">
+        <strong>TechHive</strong>
+      </a>
+  
+      <nav class="navlinks" id="navlinks">
+        <a href="Index.html">Inicio</a>
+        <a href="productos.html">Productos</a>
+        <a href="contacto.html">Contacto</a>
+        <div class="dropdown" style="display: inline-block;">
+          <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Cuenta
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="login.html">Iniciar Sesión</a></li>
+            <li><a class="dropdown-item" href="registro.html">Registrarse</a></li>
+          </ul>
+        </div>
+        <img class="carrito" id="carrito" src="../img/carrito-de-compras.png" alt="Carrito de compras" style="display: inline-block; vertical-align: middle; margin-left: 15px; cursor: pointer;" data-bs-toggle="offcanvas" data-bs-target="#carritoOffcanvas" aria-controls="carritoOffcanvas">
+        <div id="numero" class="numero-carrito"></div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Contenido principal de productos -->
+  <div class="products-container">
+    <h1 class="products-title">Nuestros Productos</h1>
+    <p class="products-subtitle" >Explora nuestras categorías de tecnología y entretenimiento</p>
+    
+    <!-- Filtros de categorías -->
+    <div class="filter-container">
+      <h3>Filtrar por categoría:</h3>
+      <div class="filter-buttons">
+        <button class="filter-btn active" data-filter="all">Todos</button>
+        <button class="filter-btn" data-filter="computadores">Computadores</button>
+        <button class="filter-btn" data-filter="smartphones">Smartphones</button>
+        <button class="filter-btn" data-filter="audio">Audio</button>
+        <button class="filter-btn" data-filter="Accesorios">Accesorios</button>
+        <button class="filter-btn" data-filter="componentes">Componentes</button>
+        <button class="filter-btn" data-filter="consolas">Consolas</button>
+        <button class="filter-btn" data-filter="Dispositivos Reacondicionados">Reacondicionados</button>
+        <button class="filter-btn" data-filter="periferico">Periféricos</button>
+      </div>
+    </div>
+    
+    <div class="grid" id="products-grid">
+        <!-- Los productos se cargarán dinámicamente aquí -->
+    </div>
+  </div>
+
+  <!-- Offcanvas del Carrito, esto hace que se escanda  -->
+  <div class="offcanvas offcanvas-end" data-bs-scroll="true" data-bs-backdrop="true" tabindex="-1" id="carritoOffcanvas" aria-labelledby="carritoOffcanvasLabel">
+    <div class="offcanvas-header" style="background: var(--surface); color: #DCDED4;">
+      <h5 class="offcanvas-title" id="carritoOffcanvasLabel">
+        🛒 Carrito de Compras
+      </h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body" style="background: var(--bg);">
+      <div class="productosCompra" id="productosCompra">
+        <!-- Los productos del carrito se cargarán aquí dinámicamente -->
+        <p class="text-muted">Tu carrito está vacío</p>
+      </div>
+      
+      <!-- Total del carrito -->
+      <div class="mt-auto">
+        <hr style="border-color: var(--border);">
+        <div class="total d-flex justify-content-between align-items-center mb-3" id="totalCompra">
+          <strong style="color: var(--text);">Total: $0</strong>
+        </div>
+        <button class="btn w-100 mb-2" id="finalizarCompra" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none;">
+          Finalizar Compra
+        </button>
+        <button class="btn w-100" id="vaciarCarrito" style="background: var(--surface); color: #DCDED4; border: 1px solid var(--border);">
+          Vaciar Carrito
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Elementos necesarios para compatibilidad con carrito.js -->
+  <div id="contenedorCompra" class="none"></div>
+  <div id="carritoOverlay" class="none"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="../JS/main.js"></script>
+    <script src="../JS/productos.js"></script>
+    <script src="../JS/carrito.js"></script>
+    
+    <!-- Script para adaptar carrito a Bootstrap Offcanvas -->
+    <script>
+    // Adaptar el carrito existente para funcionar con Bootstrap Offcanvas
+    document.addEventListener('DOMContentLoaded', function() {
+        const carritoIcon = document.getElementById('carrito');
+        const carritoOffcanvas = new bootstrap.Offcanvas(document.getElementById('carritoOffcanvas'));
+        
+        // Override de la función abrirCarrito para usar offcanvas
+        window.abrirCarrito = function() {
+            mostrarCarrito(); // Actualizar contenido
+            carritoOffcanvas.show(); // Mostrar offcanvas
+        };
+        
+        // Override de la función cerrarCarritoModal
+        window.cerrarCarritoModal = function() {
+            carritoOffcanvas.hide();
+        };
+        
+        // Asegurar que el ícono del carrito abra el offcanvas
+        if (carritoIcon) {
+            carritoIcon.addEventListener('click', function(e) {
+                e.preventDefault();
+                abrirCarrito();
+            });
+        }
+        
+        // Event listener para cuando se abre el offcanvas
+        document.getElementById('carritoOffcanvas').addEventListener('shown.bs.offcanvas', function () {
+            mostrarCarrito(); // Actualizar contenido cuando se abre
+        });
+        
+        console.log('🛒 Carrito Bootstrap Offcanvas configurado');
+    });
+    </script>
+</body>
+</html>
