@@ -5,7 +5,7 @@
   /* Paleta de colores TechHive */
   --bg: #DCDED4; /* fondo general claro */
   --text: #a76d15; /* texto principal oscuro */
-  --text-muted: #76756C; /* texto secundario */
+  --text-muted: #2E3948 ; /* texto secundario */
   --text-light: #2E3531; /* texto sobre fondos claros */
   
   /* Colores principales */
@@ -15,7 +15,7 @@
   
   /* Colores de soporte, por los productos */
   --surface: #3C545C; /* superficies y cards */
-  --surface-dark: #2E3948; /* superficies oscuras */
+  --surface-dark:#76756C ; /* superficies oscuras, color del navbbar #2E3948 */
   --border: #344474; /* bordes */
   
   /* Efectos */
@@ -48,34 +48,31 @@ h1, h2, h3, h4, h5, h6 {
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #dcdf48e5);
+/* Estilo para el navbar y logo */
+.navbar {
+  height: 55px !important;
+  display: flex;
+  align-items: center;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/*Alinear el logo verticalmente*/
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/*Logo tamaño*/
+.navbar-brand img {
+  height: 98px !important;
+  width: auto;
+  object-fit: contain;
+  margin: 0;
+  top: 10px;
 }
 
+/* Estilo de card*/
 .card {
   background-color: var(--surface);
   border-radius: var(--radius);
