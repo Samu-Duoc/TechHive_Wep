@@ -3,7 +3,7 @@ import Inicio from "./pages/inicio";
 import Contacto from "./pages/contacto";
 import Nosotros from "./pages/nosotros";
 import Productos from "./pages/productos";
-import Auth from "./pages/auth";
+import Login from "./pages/Login";
 import Pago from "./pages/pago";
 
 
@@ -35,7 +35,7 @@ function App() {
                 <Link className="nav-link" to="/contacto">Contacto</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/auth">Login</Link>
+                <Link className="nav-link" to="/login">Login</Link>
               </li>
             </ul>
           </div>
@@ -49,7 +49,7 @@ function App() {
           <Route path="/productos" element={<Productos />} />
           <Route path="/nosotros" element={<Nosotros />} />
           <Route path="/contacto" element={<Contacto />} />
-          <Route path="/auth" element={<Auth />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/pago" element={<Pago />} />
         </Routes>
       </div>
