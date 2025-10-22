@@ -8,12 +8,12 @@ export default defineConfig({
 
  //@ts-ignore
 
- test: {
+  test: {
   globals: true,
   enviorment: 'jsdom',
   setupFiles: './src/setupTests.ts'
 
   //setupFiles: './src/test/login.tsx' porque no así?
- }
+  }
 
 })
