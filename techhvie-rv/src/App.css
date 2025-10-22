@@ -1,3 +1,46 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Audiowide&display=swap');
+
+:root {
+  /* Paleta de colores TechHive */
+  --bg: #DCDED4; /* fondo general claro */
+  --text: #a76d15; /* texto principal oscuro */
+  --text-muted: #76756C; /* texto secundario */
+  --text-light: #2E3531; /* texto sobre fondos claros */
+  
+  /* Colores principales */
+  --primary: #E7B62B; /* dorado principal - botones primarios */
+  --primary-dark: #A76D15; /* dorado oscuro - hover */
+  --secondary: #63431A; /* marrón - tarjetas y elementos secundarios */
+  
+  /* Colores de soporte, por los productos */
+  --surface: #3C545C; /* superficies y cards */
+  --surface-dark: #2E3948; /* superficies oscuras */
+  --border: #344474; /* bordes */
+  
+  /* Efectos */
+  --glass: rgba(231, 182, 43, .08); /* efecto cristal dorado */
+  --shadow: 0 10px 30px rgba(46, 57, 72, .25); /* sombra */
+  --radius: 20px;
+  
+  /* Fuentes */
+  --font-main: 'Nunito Sans', sans-serif;
+  --font-heading: 'Audiowide', sans-serif;
+}
+
+/* Estilos generales */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-main);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--text);
+}
+
+/* Contenedor principal */
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -15,7 +58,7 @@
   filter: drop-shadow(0 0 2em #646cffaa);
 }
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  filter: drop-shadow(0 0 2em #dcdf48e5);
 }
 
 @keyframes logo-spin {
@@ -34,9 +77,47 @@
 }
 
 .card {
+  background-color: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
   padding: 2em;
+  border: 1px solid var(--border);
 }
 
-.read-the-docs {
-  color: #888;
+.btn-primary {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: var(--text) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark) !important;
+  border-color: var(--primary-dark) !important;
+}
+
+.navbar {
+  background-color: var(--surface-dark) !important;
+  box-shadow: var(--shadow);
+}
+
+.navbar-brand {
+  font-family: var(--font-heading);
+  color: var(--primary) !important;
+}
+
+.nav-link {
+  color: var(--primary) !important;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--primary-dark) !important;
+  text-decoration: underline;
+}
+
+.footer {
+  background-color: var(--surface-dark) !important;
+  color: var(--primary) !important;
+  padding: 1rem 0;
+  margin-top: 2rem;
 }
