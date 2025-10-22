@@ -13,7 +13,10 @@ function App() {
       {/* NAVBAR */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary fixed-top w-100 shadow">
         <div className="container-fluid">
-          <Link className="navbar-brand fw-bold" to="/"> TechHive</Link>
+          <Link className="navbar-brand d-flex align-items-center" to="/">
+
+                        <img src="/img/NavBarLogo.png" alt="TechHive Logo" /></Link> {/* el heigth agranda el navbar */}
+          
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span className="navbar-toggler-icon"></span>
           </button>
