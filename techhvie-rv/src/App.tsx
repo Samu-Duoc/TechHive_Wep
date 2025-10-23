@@ -4,6 +4,7 @@ import Contacto from "./pages/contacto";
 import Nosotros from "./pages/nosotros";
 import Productos from "./pages/productos";
 import Login from "./pages/Login";  // Esta es la ruta correcta, coincide con el nombre del archivo
+import Registro from "./pages/registro";
 import Pago from "./pages/pago";
 
 
