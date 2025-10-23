@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
 
-// Propiedad y función para recibir de un logín exitoso
+{/*Propiedad y función para recibir de un logín exitoso*/}
 interface LoginProps {
     onLoginSuccess: () => void;
 }
 
-// Componente Princpal Login, el cual recibe el onLoginSuccess
+{/*Componente Princpal Login, el cual recibe el onLoginSuccess*/}
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
     const [email, setEmail] = useState("");
@@ -58,27 +58,28 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
     // Renderizado
     return(
-        <div className="main-content d-flex justify-content-center align-items-center" style={{minHeight: "80vh"}}> // Contenedor principal centrado vertical y horizontalmente
-            <div className="login-container p-4 bg-light rounded shadow" style={{ width: "100%", maxWidth: "400px" }}> // Contenedor del formulario de login
+        <div className="main-content d-flex justify-content-center align-items-center" style={{minHeight: "80vh"}}> {/*Contenedor principal centrado vertical y horizontalmente*/}
+            <div className="login-container p-4 bg-light rounded shadow" style={{ width: "100%", maxWidth: "400px" }}> {/* Contenedor del formulario de login*/}
                 <h2 className="mb-4 text-center">Iniciar Sesión</h2>
-                <form onSubmit={handleSubmit} className="login-form"> // handleSubmit al enviar el formulario
-                    <div className="mb-3"> // Contenedor del campo email
-                        <label htmlFor="email" className="form-label  fw-bold"> Email</label> // label del email
+                <form onSubmit={handleSubmit} className="login-form"> {/*handleSubmit al enviar el formulario*/}
+
+                    <div className="mb-3"> {/*Contenedor del email*/}
+                        <label htmlFor="email" className="form-label  fw-bold"> Email</label> {/*Etiqueta del email*/}
                         <input
                             type="email"
                             id="email"
-                            className={`form-control ${errors.email ? "is-invalid" : ""}`} // Si hay error, agrega clase is-invalid
+                            className={`form-control ${errors.email ? "is-invalid" : ""}`} 
                             value={email}
                             onChange={(e) => setEmail(e.target.value)} // Actualiza el estado email al cambiar el input
                         />
                         {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                     </div>
 
-                //Contenedor de contraseña
+                {/*Contenedor de la contraseña*/}
                 <div className="mb-3">
                     <label htmlFor="password" className="form-label fw-bold">Contraseña</label>
                     <input
-                        type="passsword"
+                        type="password"
                         id="password"
                         className={'form-control ${errors.password ? "is-invalid" : ""}'} // Si hay error, agrega clase is-invalid
                         value={password}
