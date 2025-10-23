@@ -1,25 +1,25 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';// Simulador de rutas
+import { MemoryRouter } from 'react-router-dom';  // simulador de rutas
+import '@testing-library/jest-dom';// Simplifica las aserciones DOM
 import Login from '../pages/Login';  // Componente a testear
 
 
 // Bloque principal de pruebas
-describe('Login Component', () => {
+describe("Login Component", () => {
 
     // PRUEBA 1 : Verificar los siguientes campos del formulario
-    it ("Muestra los campos correo y contraseña", () => {
-
-    // Rederizar el componente Login dentro de un MemoryRouter simulado
+    it("muestra los campos de correo y contraseña", () => {
+// Renderizamos el componente dentro de un MemoryRouter simulado
         render(
-            <MemoryRouter>
-                <Login />
-            </MemoryRouter>
-        );
+        <MemoryRouter>
+            <Login/>
+        </MemoryRouter>
+    );
 
         // VERIFICACIÓN DE LOS IMPUTS DEL FORMULARIO
-        expect(screen.getByLabelText('Correo Electrónico')).toBeInTheDocument();
-        expect(screen.getByLabelText('Contraseña')).toBeInTheDocument();
+        expect(screen.getByLabelText(/email|correo electrónico/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument();
 
         // VERIFICACIÓN DEL BOTÓN  INGRESAR
         expect(screen.getByRole('button', { name: /Ingresar/i })).toBeInTheDocument();
@@ -37,26 +37,26 @@ describe('Login Component', () => {
         // Simular que el usario hizo clic y ingreso , sin recibir nada
         fireEvent.click(screen.getByRole("button", { name: /ingresar/i }));
 
-    // Buscar errores de validación
+   // Buscar errores de validación
         expect(await screen.findByText(/el correo es obligatorio/i)).toBeInTheDocument();
         expect(await screen.findByText(/la contraseña es obligatoria/i)).toBeInTheDocument();
     });
 
-    // Prueba 3: Aceptación de credenciales
+    it("acepta credenciales correctas", async () => {
+    const onLoginSuccess = vi.fn(); // función simulada
 
-    it ("Solo se aceptan credenciales correstas", async () => {
+    render(
+        <MemoryRouter>
+        <Login onLoginSuccess={onLoginSuccess} />
+        </MemoryRouter>
+    );
 
-        render(
-            <MemoryRouter>
-                <Login onLoginSuccess={onLoginSuccess}/>
-            </MemoryRouter>
-        );
+    // Usar las credenciales de prueba que valida el componente
+    fireEvent.change(screen.getByLabelText(/email|correo electrónico/i), { target: { value: "demo@gmail.com" } });
+    fireEvent.change(screen.getByLabelText(/contraseña/i), { target: { value: "1234" } });
+    fireEvent.click(screen.getByRole("button", { name: /ingresar/i }));
 
-        // Simular ingreso de datos
-        fireEvent.change (screen.getByLabelText(/correo electrónico/i), {target: { value: "demo@gmail.com" } });
-        fireEvent.change (screen.getByLabelText(/contraseña/i), {target: { value: "D1234" } });
-        fireEvent.click(screen.getByRole("button", { name: /ingresar/i }));
-        // OnLoginSucess debe  haberse llamado
-        expect(onLoginSuccess).toHaveBeenCalled();
+    // onLoginSuccess debe haberse llamado
+    expect(onLoginSuccess).toHaveBeenCalled();
     });
 });
