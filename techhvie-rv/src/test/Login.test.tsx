@@ -45,7 +45,7 @@ describe("Login Component", () => {
         </MemoryRouter>
     );
 
-    fireEvent.change(screen.getByLabelText(/correo electrónico|email/i), { target: { value: "vega@gmail.com" } });
+    fireEvent.change(screen.getByLabelText(/correo electrónico|email/i), { target: { value: "user@gmail.com" } });
     fireEvent.change(screen.getByLabelText(/contraseña/i), { target: { value: "1234" } });
     fireEvent.click(screen.getByRole("button", { name: /ingresar/i }));
 
