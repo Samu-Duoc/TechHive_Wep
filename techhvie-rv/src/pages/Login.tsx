@@ -36,7 +36,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
     if (!validate()) return;
 
-    if (email === "vega@gmail.com" && password === "1234") {
+    if (email === "user@gmail.com" && password === "1234") {
       localStorage.setItem("isLoggedIn", "true");
       setErrors({});
       if (onLoginSuccess) onLoginSuccess();
