@@ -3,11 +3,16 @@ import Inicio from "./pages/inicio";
 import Contacto from "./pages/contacto";
 import Nosotros from "./pages/nosotros";
 import Productos from "./pages/productos";
-import Login from "./pages/Login";
+import Login from "./pages/Login";  // Esta es la ruta correcta, coincide con el nombre del archivo
 import Pago from "./pages/pago";
 
 
 function App() {
+  const handleLoginSuccess = () => {
+    // Aquí puedes actualizar el estado global de la aplicación
+    console.log("Login exitoso");
+  };
+
   return (
     <div className="app-container">
       {/* NAVBAR */}
@@ -49,7 +54,7 @@ function App() {
           <Route path="/productos" element={<Productos />} />
           <Route path="/nosotros" element={<Nosotros />} />
           <Route path="/contacto" element={<Contacto />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
           <Route path="/pago" element={<Pago />} />
         </Routes>
       </div>
