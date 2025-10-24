@@ -1,4 +1,8 @@
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+
+import "./App.css";
+// Páginas
 import Inicio from "./pages/inicio";
 import Contacto from "./pages/contacto";
 import Nosotros from "./pages/nosotros";
@@ -8,22 +12,50 @@ import Registro from "./pages/registro";
 import Pago from "./pages/pago";
 
 
+
 function App() {
-  const handleLoginSuccess = () => {
-    // Aquí puedes actualizar el estado global de la aplicación
-    console.log("Login exitoso");
-  };
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate(); // para navegación interna
+
+  // Dropdown 'Cuenta' controlado por React (no depende de bootstrap.js)
+  const [isCuentaOpen, setIsCuentaOpen] = useState(false);
+  const cuentaRef = useRef<HTMLDivElement | null>(null);
+
+  const toggleCuenta = () => setIsCuentaOpen(v => !v);
+
+  // Cerrar dropdown al hacer clic fuera
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (!cuentaRef.current) return;
+      const target = e.target as Node;
+      if (!cuentaRef.current.contains(target)) {
+        setIsCuentaOpen(false);
+      }
+    }
+    document.addEventListener("click", onDocClick);
+    return () => document.removeEventListener("click", onDocClick);
+  }, []);
+
+  // Verificar sesión guardada
+  useEffect(() => {
+    const storedLogin = localStorage.getItem("isLoggedIn");
+    if (storedLogin === "true") {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  
 
   return (
-    <div className="app-container">
+    <div className="app-container" data-logged={isLoggedIn}>
       {/* NAVBAR */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-primary fixed-top w-100 shadow">
         <div className="container-fluid">
           <Link className="navbar-brand d-flex align-items-center" to="/">
 
-                        <img src="/img/NavBarLogo.png" alt="TechHive Logo" /></Link> {/* el heigth agranda el navbar */}
-          
+          <img src="/img/NavBarLogo.png" alt="TechHive Logo" /></Link>
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+
             <span className="navbar-toggler-icon"></span>
           </button>
           <div className="collapse navbar-collapse" id="navbarNav">
@@ -41,7 +73,33 @@ function App() {
                 <Link className="nav-link" to="/contacto">Contacto</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/login">Login</Link>
+                <div className="d-flex">
+                  <div
+                    className={`dropdown ${isCuentaOpen ? "show" : ""}`}
+                    ref={cuentaRef}
+                  >
+                    <button
+                      className="btn btn-secondary dropdown-toggle"
+                      type="button"
+                      aria-expanded={isCuentaOpen}
+                      onClick={(e) => { e.stopPropagation(); toggleCuenta(); }}
+                    >
+                      Cuenta
+                    </button>
+                    <ul className={`dropdown-menu ${isCuentaOpen ? "show" : ""}`}>
+                      <li>
+                        <Link className="dropdown-item" to="/login" onClick={() => setIsCuentaOpen(false)}>
+                          Iniciar Sesión
+                        </Link>
+                      </li>
+                      <li>
+                        <Link className="dropdown-item" to="/registro" onClick={() => setIsCuentaOpen(false)}>
+                          Registrarse
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </li>
             </ul>
           </div>
@@ -55,8 +113,15 @@ function App() {
           <Route path="/productos" element={<Productos />} />
           <Route path="/nosotros" element={<Nosotros />} />
           <Route path="/contacto" element={<Contacto />} />
-          <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
           <Route path="/pago" element={<Pago />} />
+          <Route path="/login" element={
+            <Login onLoginSuccess={() => {
+              localStorage.setItem("isLoggeIn","true");
+              setIsLoggedIn(true);
+              navigate("/")
+            }} />
+          }/>
+          <Route path="/registro" element={<Registro />} />
         </Routes>
       </div>
 
