@@ -7,6 +7,7 @@ import Productos from "./pages/productos";
 import Login from "./pages/Login";
 import Registro from "./pages/registro";
 import Pago from "./pages/pago";
+import Comprobante from "./pages/comprobante";
 
 import "./App.css";
 
@@ -32,6 +33,7 @@ function App() {
             element={<Login onLoginSuccess={handleLoginSuccess} />}
           />
           <Route path="/registro" element={<Registro />} />
+          <Route path="/comprobante" element={<Comprobante />} />
           <Route path="/pago" element={<Pago />} />
         </Routes>
       </main>
