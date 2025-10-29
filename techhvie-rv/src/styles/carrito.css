@@ -1,0 +1,58 @@
+/* === CARRITO TECHHIVE === */
+.carrito-panel {
+  background: var(--bg);
+  border-left: 2px solid var(--border);
+  box-shadow: -5px 0 15px rgba(46, 57, 72, 0.25);
+}
+
+.cart-header {
+  background: var(--surface);
+  color: #fff;
+  border-bottom: 1px solid var(--border);
+}
+
+.cart-title {
+  font-family: var(--font-heading);
+  color: var(--primary);
+}
+
+.cart-body {
+  background: var(--bg);
+  color: var(--text);
+  max-height: calc(100vh - 130px);
+  overflow-y: auto;
+}
+
+.cart-item {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  padding: 8px;
+  transition: transform 0.2s ease;
+}
+
+.cart-item:hover {
+  transform: scale(1.02);
+}
+
+.cart-img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.delete-btn {
+  background: var(--primary-dark);
+  color: #fff;
+  border: none;
+}
+
+.delete-btn:hover {
+  background: var(--primary);
+}
+
+.empty-cart {
+  text-align: center;
+  color: var(--text-muted);
+  font-weight: 600;
+}

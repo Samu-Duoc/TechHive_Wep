@@ -1,5 +1,6 @@
 import React from "react";
 
+
 const Nosotros: React.FC = () => {
     return (
     <div className="main-content">

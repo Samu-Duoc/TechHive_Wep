@@ -1,0 +1,372 @@
+/* Importar fuentes de Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Audiowide&display=swap');
+
+:root {
+  /* Paleta de colores TechHive */
+  --bg: #DCDED4; /* fondo general claro */
+  --text: #111013; /* texto principal oscuro */
+  --text-muted: #76756C; /* texto secundario */
+  --text-light: #2E3531; /* texto sobre fondos claros */
+  
+  /* Colores principales */
+  --primary: #E7B62B; /* dorado principal - botones primarios */
+  --primary-dark: #A76D15; /* dorado oscuro - hover */
+  --secondary: #63431A; /* marrón - tarjetas y elementos secundarios */
+  
+  /* Colores de soporte */
+  --surface: #3C545C; /* superficies y cards */
+  --surface-dark: #2E3948; /* superficies oscuras */
+  --border: #344474; /* bordes */
+  
+  /* Efectos */
+  --glass: rgba(231, 182, 43, .08); /* efecto cristal dorado */
+  --shadow: 0 10px 30px rgba(46, 57, 72, .25); /* sombra */
+  --radius: 20px;
+  
+  /* Fuentes */
+  --font-main: 'Nunito Sans';
+  --font-heading: 'Audiowide';
+}
+
+/* Tema de fondo */
+.light {
+  --bg: #DCDED4;
+  --text: #111013;
+  --text-muted: #76756C;
+  --primary: #E7B62B;
+  --primary-dark: #A76D15;
+  --secondary: #63431A;
+  --surface: #3C545C;
+  --surface-dark: #2E3948;
+  --glass: rgba(231, 182, 43, .08);
+  --border: #344474;
+  --shadow: 0 10px 30px rgba(46, 57, 72, .25);
+}
+
+/* === RESET === */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+body {
+  font-family: var(--font-main);
+  background: radial-gradient(1200px 800px at 80% -10%, rgba(231, 182, 43, .12), transparent 60%),
+              radial-gradient(1000px 700px at -10% 10%, rgba(60, 84, 92, .08), transparent 55%),
+              var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* === TIPOGRAFÍA === */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.75rem; }
+h4 { font-size: 1.5rem; }
+h5 { font-size: 1.25rem; }
+h6 { font-size: 1rem; }
+
+p {
+  font-family: var(--font-main);
+  font-size: 1.1rem;
+  color: #000;
+}
+
+/* === CONTENEDOR PRINCIPAL === */
+.container {
+  width: min(1200px, 92%);
+  margin-inline: auto;
+}
+
+/* === NAVBAR OFFCANVAS TECHHIVE === */
+.tech-navbar {
+  backdrop-filter: blur(12px) saturate(180%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(231, 182, 43, 0.1) 25%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(167, 109, 21, 0.08) 75%,
+    rgba(255, 255, 255, 0.95) 100%
+  ) !important;
+  border-bottom: 1px solid rgba(231, 182, 43, 0.25);
+  box-shadow: 0 4px 20px rgba(46, 57, 72, 0.15);
+  padding: 0.6rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* === LOGO Y MARCA === */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.brand-title {
+  font-family: var(--font-heading);
+  color: var(--primary);
+  font-size: 1.5rem;
+  letter-spacing: 0.5px;
+}
+
+/* no borrar: tamaño del logo y su ajuste */
+.logo-img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+/* corrige la animación exagerada del logo */
+.logo-img:hover {
+  transform: scale(1.1);
+}
+
+/* === LINKS DEL NAVBAR === */
+.navlinks .nav-link {
+  font-family: var(--font-main);
+  font-weight: 600;
+  color: var(--text) !important;
+  margin: 0 8px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.navlinks .nav-link:hover,
+.navlinks .nav-link.active {
+  color: var(--primary) !important;
+  background: linear-gradient(135deg, rgba(231, 182, 43, 0.15), rgba(167, 109, 21, 0.1));
+  box-shadow: 0 3px 10px rgba(231, 182, 43, 0.25);
+}
+
+/* === OFFCANVAS PERSONALIZADO === */
+.tech-offcanvas {
+  background: var(--bg);
+  color: var(--text);
+  border-left: 2px solid var(--border);
+}
+
+.tech-offcanvas .offcanvas-header {
+  background: var(--surface);
+  color: #fff;
+}
+
+.tech-offcanvas .offcanvas-title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  color: var(--primary);
+}
+
+/* === BOTÓN DE CARRITO === */
+.cart-btn {
+  font-family: var(--font-main);
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  border: none;
+  background: none;
+  transition: all 0.3s ease;
+}
+
+.cart-btn:hover {
+  color: var(--primary);
+  transform: translateY(-2px);
+}
+
+/* === CARRUSEL Y EFECTOS === */
+.carousel-item img {
+  width: 100%;
+  height: 400px;
+  object-fit: contain;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: 0.6s cubic-bezier(.2, .8, .2, 1);
+}
+
+.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* === ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 991px) {
+  .brand-title {
+    font-size: 1.3rem;
+  }
+  .navlinks {
+    text-align: center;
+  }
+}
+
+/* === INICIO / HERO TECHHIVE === */
+.inicio-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px);
+  background: var(--bg);
+  padding-top: 2rem;
+}
+
+.hero {
+  width: 100%;
+}
+
+.hero-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero-text {
+  flex: 1 1 400px;
+}
+
+.hero-text h2 {
+  font-family: var(--font-heading);
+  font-size: 2.3rem;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.techhive-title {
+  color: var(--primary);
+}
+
+.hero-text p {
+  font-family: var(--font-main);
+  font-size: 1.2rem;
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+}
+
+.hero-text .btn.large {
+  padding: 12px 24px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.hero-text .btn.large:hover {
+  box-shadow: 0 5px 15px rgba(231, 182, 43, 0.3);
+  transform: translateY(-2px);
+}
+
+.hero-art {
+  flex: 1 1 350px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-logo {
+  width: 80%;
+  max-width: 320px;
+  height: auto;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.hero-logo:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero-inner {
+    flex-direction: column-reverse;
+    text-align: center;
+  }
+  .hero-text h2 {
+    font-size: 1.9rem;
+  }
+  .hero-logo {
+    max-width: 240px;
+  }
+}
+
+/* === CARRITO EN OFFCANVAS CENTRADO Y DORADO === */
+.offcanvas-body .cart-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 1.5rem;
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--primary);
+  transition: all 0.3s ease;
+}
+
+.offcanvas-body .cart-link:hover {
+  color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+
+/* Footer fijo abajo */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  background-color: #A76D15(26, 31, 113, 0.95);
+  color: #000000;
+  text-align: center;
+  padding: 12px 0;
+  z-index: 999;
+}
+

@@ -1,171 +1,267 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "../App.css";
+import React, { type FormEvent, useState, type ChangeEvent } from 'react';
 
-// Definición de las props del componente Register
-interface RegisterProps {
-  onRegisterSuccess?: () => void;
-}
 
-// Componentess de registro de usuario
-const Register: React.FC<RegisterProps> = ({ onRegisterSuccess }) => {
-  const [nameUser, setNameUser] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [validacionEdad, setValidacionEdad] = useState(false);
+//Componente de Registro
+const RegisterIn: React.FC = () => {
+  const [formData, setFormData] = useState({
+    nombre: '',
+    correo: '',
+    nombre_usu: '',
+    password: '',
+    cPassword: '',
+    telefono: '',
+    fec_nac: '',
+    termCond: false
+  });
 
-  // Estado para manejar errores de validación
-  const [errors, setErrors] = useState<{
-    nameUser?: string;
-    email?: string;
-    password?: string;
-    confirmPassword?: string;
-    edad?: string;
-    register?: string;
-  }>({});
+  // Componente de manejo de errores
+  const [errors, setErrors] = useState({
+    nombre: '',
+    correo: '',
+    nombre_usu: '',
+    password: '',
+    cPassword: '',
+    telefono: '',
+    fec_nac: '',
+    termCond: ''
+  });
 
-  // Navegación entre rutas
-  const navigate = useNavigate();
-
-  // Función de validación del formulario
-  const validate = (): boolean => {
-    const newErrors: {
-      nameUser?: string;
-      email?: string;
-      password?: string;
-      confirmPassword?: string;
-      edad?: string;
-    } = {};
-
-    // Validaciones de todos los campos del registro
-    if (!nameUser) {
-      newErrors.nameUser = "El nombre de usuario es obligatorio";
+  // Manejo de cambios en los inputs
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    
+    // Limpiar números para el campo teléfono
+    if (name === 'telefono') {
+      const cleaned = value.replace(/\D+/g, '');
+      setFormData(prev => ({
+        ...prev,
+        [name]: cleaned
+      }));
+      return;
     }
 
-    if (!email) {
-      newErrors.email = "El correo es obligatorio";
-    } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-      newErrors.email = "Formato de correo inválido";
-    }
-
-    if (!password) {
-      newErrors.password = "La contraseña es obligatoria";
-    } else if (password.length < 4) {
-      newErrors.password = "La contraseña debe tener al menos 4 caracteres";
-    }
-
-    if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Las contraseñas no coinciden";
-    }
-
-    if (!validacionEdad) {
-      newErrors.edad = "Debes ser mayor de edad para registrarte";
-    }
-
-    // Actualizar el estado de errores
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    // Actualizar estado del formulario
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
   };
 
-    //Manejo del envío del formulario
-  const handleSubmit = (e: React.FormEvent) => {
+  // Validación del formulario
+  const validar = (e: FormEvent) => {
     e.preventDefault();
+    let todoOk = true;
+    const newErrors = { ...errors };
 
-    if (!validate()) return;
-
-    if (email === "demo@gmail.com" && password === "1234") {
-      localStorage.setItem("isLoggedIn", "true");
-      setErrors({});
-      if (onRegisterSuccess) onRegisterSuccess();
-      navigate("/");
+    // Validar nombre
+    if (formData.nombre.length < 3 || formData.nombre.length > 20 || formData.nombre.trim() === '') {
+      newErrors.nombre = 'Nombre debe contener 3 a 20 caracteres';
+      todoOk = false;
     } else {
-      setErrors({ register: "Correo o contraseña incorrectos" });
+      newErrors.nombre = '';
+    }
+
+    // Validar correo
+    if (formData.correo.trim() === '' ||
+        !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.correo.trim())) {
+      newErrors.correo = 'Correo debe tener un formato válido (usuario@dominio.com)';
+      todoOk = false;
+    } else if (formData.correo.length > 100) {
+      newErrors.correo = 'Correo NO debe ser mayor a 100 caracteres';
+      todoOk = false;
+    } else {
+      newErrors.correo = '';
+    }
+
+    // Validar usuario
+    if (formData.nombre_usu.length < 4 || formData.nombre_usu.length > 20 || formData.nombre_usu.trim() === '') {
+      newErrors.nombre_usu = 'Usuario debe contener 4 a 20 caracteres';
+      todoOk = false;
+    } else {
+      newErrors.nombre_usu = '';
+    }
+
+    // Validar fecha de nacimiento
+    if (formData.fec_nac) {
+      const today = new Date();
+      const birth = new Date(formData.fec_nac);
+      let age = today.getFullYear() - birth.getFullYear();
+      const m = today.getMonth() - birth.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      if (age < 18) {
+        newErrors.fec_nac = 'Debes ser mayor de 18 años para registrarte';
+        todoOk = false;
+      } else {
+        newErrors.fec_nac = '';
+      }
+    }
+
+    // Validar contraseña
+    if (formData.password.length < 8) {
+      newErrors.password = 'La contraseña debe contener al menos 8 caracteres';
+      todoOk = false;
+    } else {
+      newErrors.password = '';
+    }
+
+    // Validar confirmación de contraseña
+    if (formData.cPassword !== formData.password) {
+      newErrors.cPassword = 'La contraseña ingresada no coincide';
+      todoOk = false;
+    } else {
+      newErrors.cPassword = '';
+    }
+
+    // Validar teléfono
+    if (formData.telefono && (formData.telefono.length < 8 || formData.telefono.length > 12)) {
+      newErrors.telefono = 'El teléfono debe tener entre 8 y 12 números';
+      todoOk = false;
+    } else {
+      newErrors.telefono = '';
+    }
+
+    // Validar términos y condiciones
+    if (!formData.termCond) {
+      newErrors.termCond = 'Debe aceptar los términos y condiciones';
+      todoOk = false;
+    } else {
+      newErrors.termCond = '';
+    }
+
+    setErrors(newErrors);
+
+    if (todoOk) {
+      alert('¡Se ha registrado correctamente!');
+      setFormData({
+        nombre: '',
+        correo: '',
+        nombre_usu: '',
+        password: '',
+        cPassword: '',
+        telefono: '',
+        fec_nac: '',
+        termCond: false
+      });
     }
   };
 
-  //Renderizado del formulario de registro
+  // ...existing code...
   return (
-    <div className="main-content d-flex justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
-      <div className="register-container p-4 bg-light rounded shadow" style={{ width: "100%", maxWidth: "400px" }}> // contenedor del formulario
-        <h2 className="text-center mb-4 text-primary">Registro de Usuario</h2>
-        <form onSubmit={handleSubmit} className="register-form">
-          <div className="mb-3">
-            <label htmlFor="nameUser" className="form-label fw-bold">Nombre de Usuario</label>
-            <input
-              type="text"
-              id="nameUser"
-              className={`form-control ${errors.nameUser ? "is-invalid" : ""}`}
-              value={nameUser}
-              onChange={(e) => setNameUser(e.target.value)}
-            />
-            // error display
-            {errors.nameUser && <div className="invalid-feedback">{errors.nameUser}</div>}
-          </div>
+    <div className="abs-center">
+      <form className="form" onSubmit={validar}>
+        <div className="form-input">
+          <label htmlFor="nombre">Nombre</label>
+          <input
+            id="nombre"
+            type="text"
+            name="nombre"
+            value={formData.nombre}
+            onChange={handleInputChange}
+            placeholder="Nombre"
+          />
+          {errors.nombre && <div className="mensajeError">{errors.nombre}</div>}
+        </div>
 
-          //Bloque para el email
-          <div className="mb-3">
-            <label htmlFor="email" className="form-label fw-bold">Correo Electrónico</label>
-            <input
-              type="email"
-              id="email"
-              className={`form-control ${errors.email ? "is-invalid" : ""}`}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            {errors.email && <div className="invalid-feedback">{errors.email}</div>}
-          </div>
+        <div className="form-input">
+          <label htmlFor="correo">Correo</label>
+          <input
+            id="correo"
+            type="email"
+            name="correo"
+            value={formData.correo}
+            onChange={handleInputChange}
+            placeholder="Correo"
+          />
+          {errors.correo && <div className="mensajeError">{errors.correo}</div>}
+        </div>
 
-          //Bloque para la contraseña
-          <div className="mb-3">
-            <label htmlFor="password" className="form-label fw-bold">Contraseña</label>
-            <input
-              type="password"
-              id="password"
-              className={`form-control ${errors.password ? "is-invalid" : ""}`}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            {errors.password && <div className="invalid-feedback">{errors.password}</div>}
-          </div>
+        <div className="form-input">
+          <label htmlFor="nombre_usu">Usuario</label>
+          <input
+            id="nombre_usu"
+            type="text"
+            name="nombre_usu"
+            value={formData.nombre_usu}
+            onChange={handleInputChange}
+            placeholder="Usuario"
+          />
+          {errors.nombre_usu && <div className="mensajeError">{errors.nombre_usu}</div>}
+        </div>
 
-          //Bloque de confirma la contraseña
-          <div className="mb-3">
-            <label htmlFor="confirmPassword" className="form-label fw-bold">Confirmar Contraseña</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-            {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
-          </div>
+        <div className="form-input">
+          <label htmlFor="password">Contraseña</label>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleInputChange}
+            placeholder="Contraseña"
+          />
+          {errors.password && <div className="mensajeError">{errors.password}</div>}
+        </div>
 
-          // Bloqur de validación de edad +18
-          <div className="mb-3 form-check">
-            <input
-              type="checkbox"
-              id="validacionEdad"
-              className={`form-check-input ${errors.edad ? "is-invalid" : ""}`}
-              checked={validacionEdad}
-              onChange={(e) => setValidacionEdad(e.target.checked)}
-            />
-            <label htmlFor="validacionEdad" className="form-check-label">Soy mayor de edad</label>
-            {errors.edad && <div className="invalid-feedback d-block">{errors.edad}</div>}
-          </div>
+        <div className="form-input">
+          <label htmlFor="cPassword">Confirmar Contraseña</label>
+          <input
+            id="cPassword"
+            type="password"
+            name="cPassword"
+            value={formData.cPassword}
+            onChange={handleInputChange}
+            placeholder="Confirmar Contraseña"
+          />
+          {errors.cPassword && <div className="mensajeError">{errors.cPassword}</div>}
+        </div>
 
-          {errors.register && <p className="text-danger text-center">{errors.register}</p>}
+        <div className="form-input telefono">
+          <label htmlFor="telefono">Teléfono</label>
+          <input
+            id="telefono"
+            type="tel"
+            name="telefono"
+            value={formData.telefono}
+            onChange={handleInputChange}
+            placeholder="Teléfono"
+            inputMode="numeric"
+            autoComplete="tel"
+          />
+          {errors.telefono && <div className="mensajeError">{errors.telefono}</div>}
+        </div>
 
-          <button type="submit" className="btn btn-primary w-100 mt-2">Registrarse</button>
-        </form>
-      </div>
+        <div className="form-input">
+          <label htmlFor="fec_nac">Fecha de Nacimiento</label>
+          <input
+            id="fec_nac"
+            type="date"
+            name="fec_nac"
+            value={formData.fec_nac}
+            onChange={handleInputChange}
+          />
+          {errors.fec_nac && <div className="mensajeError">{errors.fec_nac}</div>}
+        </div>
+
+        <div className="form-input termCond">
+          <input
+            id="termCond"
+            type="checkbox"
+            name="termCond"
+            checked={formData.termCond}
+            onChange={handleInputChange}
+          />
+          <label htmlFor="termCond">Acepto los términos y condiciones</label>
+          {errors.termCond && <div className="mensajeError">{errors.termCond}</div>}
+        </div>
+        
+        <div className="form-actions d-flex">
+          <button type="submit" className="btn btn-primary">Registrarse</button>
+          <button type="button" className="btn btn-secondary" onClick={() => window.history.back()}>Volver</button>
+        </div>
+      </form>
     </div>
   );
-};
-
-export default Register;
-
-
-
+}
+export default RegisterIn;
 
