@@ -1,68 +1,110 @@
-import React, { useState } from "react";
+import React, { useState, type FormEvent } from 'react';
+import '../styles/contacto.css';
 
-// Declara un componente funcional llamado Contacto, significa React Functional Component, y le dice a TypeScript que Home es un componente de React.
+// Compoenete para realizar  una conuslta o enviar un mensaje
 const Contacto: React.FC = () => {
-const [nombre, setNombre] = useState("");
-const [email, setEmail] = useState("");
-const [mensaje, setMensaje] = useState("");
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [message, setMessage] = useState('');
+    const [response, setResponse] = useState('');
+    const [responseColor, setResponseColor] = useState('');
 
-// Función que maneja el envío del formulario, evita que la página se recargue y procesa los datos ingresados
-const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert(`Gracias ${nombre}, tu mensaje ha sido enviado!`);
-    setNombre("");
-    setEmail("");
-    setMensaje("");
-};
+    // COMPO DE ERRORES 
+    const [errors, setErrors] = useState({
+        name: '',
+        email: '',
+        message: ''
+    });
 
-return (
-    <div className="main-content">
-        <h1 className="text-white fw-bold display-5 mb-3">Contacto 📬</h1>
-            <p className="lead text-white mb-4"> Completa el formulario y nos pondremos en contacto contigo.</p>
-        <form onSubmit={handleSubmit} className="w-100" style={{ maxWidth: "500px" }}>
+    // Manejar el envío del formulario
+    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const n = name.trim();
+        const em = email.trim();
+        const msg = message.trim();
 
-        <div className="mb-3">
-            <label htmlFor="nombre" className="form-label text-white"> Nombre</label>
+        const newErrors = { name: '', email: '', message: '' };
+        let valid = true;
 
-        <input
-            type="text"
-            id="nombre"
-            className="form-control"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)} // evento que captura la informacion
-            required
-        />
-        </div>
-        <div className="mb-3">
-        <label htmlFor="email" className="form-label text-white"> Email </label>
+        if (n.length < 3 || n.length > 50) {
+            newErrors.name = 'El nombre debe tener entre 3 y 50 caracteres';
+            valid = false;
+        }
 
-        <input
-            type="email"
-            id="email"
-            className="form-control"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-        />
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
+            newErrors.email = 'Ingresa un correo válido (usuario@dominio.com)';
+            valid = false;
+        }
 
-        </div>
-        <div className="mb-3">
-            <label htmlFor="mensaje" className="form-label text-white"> Mensaje </label>
+        if (msg.length < 5) {
+            newErrors.message = 'El mensaje debe tener al menos 5 caracteres';
+            valid = false;
+        }
 
-            <textarea
-            id="mensaje"
-            className="form-control"
-            value={mensaje}
-            onChange={(e) => setMensaje(e.target.value)}
-            required
-            rows={4}
-            ></textarea>
+        setErrors(newErrors);
 
-        </div>
-        <button type="submit" className="btn btn-light w-100"> Enviar </button>
-        </form>
-    </div>
+        // Componente de respuesta
+        if (valid) {
+            setResponse(`¡Gracias por tu mensaje, ${n}! Lo hemos recibido correctamente.`);
+            setResponseColor('var(--accent-1)');
+            setName('');
+            setEmail('');
+            setMessage('');
+            setErrors({ name: '', email: '', message: '' });
+        } else {
+            setResponse('');
+            setResponseColor('var(--accent-3)');
+        }
+    };
+
+    // Retorno de el componente
+    return (
+        <section id="contact" className="contact-section">
+            <div className="container">
+            <h2>Contacto</h2>
+            <p>Escríbenos tus dudas o sugerencias y te responderemos a la brevedad.</p>
+            <form id="contact-form" className="contact-form" onSubmit={handleSubmit}>
+                    <label htmlFor="name">Nombre:</label>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        placeholder="Ingresa tu nombre"
+                        value={name}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+                    />
+                    {errors.name && <div className="mensajeError">{errors.name}</div>}
+
+                    <label htmlFor="email">Correo electrónico:</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="ejemplo@correo.com"
+                        value={email}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                    />
+                    {errors.email && <div className="mensajeError">{errors.email}</div>}
+
+                    <label htmlFor="message">Opinión o consulta:</label>
+                    <textarea
+                        id="message"
+                        name="message"
+                        rows={5}
+                        placeholder="Escribe aquí tu mensaje"
+                        value={message}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
+                    />
+                    {errors.message && <div className="mensajeError">{errors.message}</div>}
+
+                    <button type="submit" className="btn">Enviar</button>
+                </form>
+                <p id="form-response" className="form-response" style={{ color: responseColor }}>
+                    {response}
+                </p>
+          </div>
+        </section>
     );
-};
+}
 
 export default Contacto;
