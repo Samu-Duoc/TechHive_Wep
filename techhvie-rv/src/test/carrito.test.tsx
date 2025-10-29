@@ -1,5 +1,6 @@
 import { describe, test, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 
 // Mocks for the carrito context
 const eliminarMock = vi.fn();
@@ -9,12 +10,12 @@ const actualizarMock = vi.fn();
 const mockCarrito = [
     {
         id: 1,
-        titulo: 'Retro Console',
-        descripcion: 'Consola retro',
-        imagen: '/img/consola.jpg',
-        categoria: 'consolas',
+            titulo: 'Asus vivoBook 15',
+        descripcion: 'Noteobook Asus VivoBook 15',
+        imagen: '/img/categorias/computadoras/asusVivoBook15.jpg',
+        categoria: 'Computadoras',
         tags: [],
-        precio: 379990,
+        precio:  229990,
         cantidad: 2,
     },
 ];
@@ -49,21 +50,35 @@ describe('Carrito Component', () => {
         eliminarMock.mockClear();
         vaciarMock.mockClear();
         actualizarMock.mockClear();
+        // Ensure any localStorage-based initial data is set to our mock so component renders predictable items
+        try {
+            localStorage.setItem('carritoTechHive', JSON.stringify(mockCarrito));
+        } catch (e) {
+            // ignore in environments without localStorage
+        }
     });
 
     it('muestra el título y el item del carrito', () => {
-        const { container } = render(<Carrito visible={true} onClose={() => {}} />);
+        const { container } = render(
+            <MemoryRouter>
+                <Carrito visible={true} onClose={() => {}} />
+            </MemoryRouter>
+        );
 
         expect(screen.getByText(/Tu Carrito/)).toBeInTheDocument();
-        // Producto y cantidad
-        expect(screen.getByText('Retro Console')).toBeInTheDocument();
+    // Producto y cantidad (título coincidente con el mock actual)
+    expect(screen.getByText('Asus vivoBook 15')).toBeInTheDocument();
         expect(screen.getByText('2')).toBeInTheDocument();
         // Botón vaciar
         expect(screen.getByText('Vaciar Carrito')).toBeInTheDocument();
     });
 
     it('llama a eliminarDelCarrito, actualizarCantidad y vaciarCarrito al interactuar', () => {
-        const { container } = render(<Carrito visible={true} onClose={() => {}} />);
+        const { container } = render(
+            <MemoryRouter>
+                <Carrito visible={true} onClose={() => {}} />
+            </MemoryRouter>
+        );
 
         const deleteBtn = container.querySelector('.delete-btn') as HTMLButtonElement;
         expect(deleteBtn).toBeTruthy();
@@ -73,6 +88,7 @@ describe('Carrito Component', () => {
         const plusButtons = screen.getAllByText('+');
         expect(plusButtons.length).toBeGreaterThan(0);
         fireEvent.click(plusButtons[0]);
+        
         // Debe haberse llamado con id 1 y nueva cantidad 3
         expect(actualizarMock).toHaveBeenCalledWith(1, 3);
 
