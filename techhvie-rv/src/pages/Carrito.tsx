@@ -2,6 +2,7 @@ import React from "react";
 import { Offcanvas } from "react-bootstrap";
 import "../styles/carrito.css";
 import { useCarrito } from "../context/CarritoContext";
+import { useNavigate } from 'react-router-dom';
 
 const Carrito: React.FC<{ visible: boolean; onClose: () => void }> = ({
   visible,
@@ -9,6 +10,39 @@ const Carrito: React.FC<{ visible: boolean; onClose: () => void }> = ({
 }) => {
   const { carrito, eliminarDelCarrito, vaciarCarrito, actualizarCantidad } =
     useCarrito();
+  const navigate = useNavigate();
+
+  const handleCheckout = () => {
+    // generar id simple y guardar el pedido como comprobante (respaldo en localStorage)
+    const id = String(Date.now());
+    const items = carrito.map((p) => ({
+      id: p.id,
+      titulo: p.titulo,
+      cantidad: p.cantidad || 1,
+      precio: p.precio,
+    }));
+    const total = carrito.reduce((acc, producto) => {
+      const precioNum = typeof producto.precio === "number"
+        ? producto.precio
+        : parseFloat(String(producto.precio).replace(/[^0-9.-]+/g, "")) || 0;
+      return acc + precioNum * (producto.cantidad || 1);
+    }, 0);
+
+    const order = { id, items, total };
+    try {
+      localStorage.setItem('ultimoComprobante', JSON.stringify(order));
+    } catch (e) {
+      // si falla el guardado, no bloquear la navegación
+      console.warn('No se pudo guardar comprobante en localStorage', e);
+    }
+
+    // navegar a la página de comprobante pasando el pedido como state
+    navigate('/comprobante', { state: { order } });
+    // opcional: cerrar el offcanvas llamando onClose
+    onClose();
+  };
+
+  
 
   // Calcular total robusto: convertir precio a número si viene como string (p. ej. "$1.000")
   const total = carrito.reduce((acc, producto) => {
@@ -92,7 +126,7 @@ const Carrito: React.FC<{ visible: boolean; onClose: () => void }> = ({
               <button className="btn btn-warning me-2" onClick={vaciarCarrito}>
                 Vaciar Carrito
               </button>
-              <button className="btn btn-success">Proceder al Pago</button>
+              <button className="btn btn-success" onClick={handleCheckout}>Proceder al Pago</button>
             </div>
           </>
         )}
