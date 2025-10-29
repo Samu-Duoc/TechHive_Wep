@@ -12,8 +12,13 @@
 }
 
 .footer {
-  background-color: var(--surface-dark);
-  color: var(--text-light);
-  text-align: center;
-  padding: 12px 0;
+  background-color: var(--surface);
+  color: var(--text);
+}
+
+
+.main-content {
+  flex: 1;
+  padding-top: 85px; /* era 100px, ajustado al nuevo alto */
+  padding-bottom: 60px;
 }
