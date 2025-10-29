@@ -8,6 +8,7 @@ import {
   NavDropdown,
   Button,
 } from "react-bootstrap";
+
 import { ShoppingCart } from "lucide-react";
 import "../styles/global.css";
 import "../styles/carrito.css";
@@ -77,7 +78,7 @@ const NavBarTechHive: React.FC = () => {
                       <NavDropdown.Item as={Link} to="/login">
                         Iniciar sesión
                       </NavDropdown.Item>
-                      <NavDropdown.Item as={Link} to="/signin">
+                      <NavDropdown.Item as={Link} to="/registro">
                         Crear cuenta
                       </NavDropdown.Item>
                     </>

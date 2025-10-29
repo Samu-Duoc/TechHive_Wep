@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css";
+import "../styles/auth.css";
+
 
 interface LoginProps {
   onLoginSuccess?: () => void;
@@ -47,10 +49,10 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="main-content d-flex justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
-      <div className="login-container p-4 bg-light rounded shadow" style={{ width: "100%", maxWidth: "400px" }}>
-        <h2 className="text-center mb-4 text-primary">Iniciar sesión</h2>
-        <form onSubmit={handleSubmit} className="login-form">
+    <div className="auth-page">
+      <div className="auth-card">
+        <h2>Iniciar sesión</h2>
+        <form onSubmit={handleSubmit} className="auth-form">
           <div className="mb-3">
             <label htmlFor="email" className="form-label fw-bold">Correo electrónico</label>
             <input
@@ -77,7 +79,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
           {errors.login && <p className="text-danger text-center">{errors.login}</p>}
 
-          <button type="submit" className="btn btn-primary w-100 mt-2">
+          <button type="submit" className="auth-btn">
             Ingresar
           </button>
         </form>

@@ -1,4 +1,5 @@
 import React, { type FormEvent, useState, type ChangeEvent } from 'react';
+import "../styles/auth.css";
 
 
 //Componente de Registro
@@ -149,8 +150,9 @@ const RegisterIn: React.FC = () => {
 
   // ...existing code...
   return (
-    <div className="abs-center">
-      <form className="form" onSubmit={validar}>
+    <div className="auth-page">
+      <div className="auth-card">
+        <form className="auth-form" onSubmit={validar}>
         <div className="form-input">
           <label htmlFor="nombre">Nombre</label>
           <input
@@ -256,10 +258,11 @@ const RegisterIn: React.FC = () => {
         </div>
         
         <div className="form-actions d-flex">
-          <button type="submit" className="btn btn-primary">Registrarse</button>
+          <button type="submit" className="auth-btn">Registrarse</button>
           <button type="button" className="btn btn-secondary" onClick={() => window.history.back()}>Volver</button>
         </div>
       </form>
+      </div>
     </div>
   );
 }
