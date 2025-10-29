@@ -1,40 +1,51 @@
+import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import Contacto from "../pages/contacto";
-import { vi } from "vitest";
+import { MemoryRouter } from "react-router-dom";
+import Contact from "../pages/contacto";
 
-describe("Contacto component", () => {
-    it("renderiza los campos correctamente", () => {
-    render(<Contacto />);
-    expect(screen.getByTestId("nombre-input")).toBeInTheDocument();
-    expect(screen.getByTestId("email-input")).toBeInTheDocument();
-    expect(screen.getByTestId("mensaje-textarea")).toBeInTheDocument();
+describe("Contact Page", () => {
+    it("Muestra los campos Nombre, correo y opinion/consulta", () => {
+        render(
+            <MemoryRouter>
+                <Contact />
+            </MemoryRouter>
+        );
+
+        expect(screen.getByLabelText("Nombre:")).toBeInTheDocument();
+        expect(screen.getByLabelText("Correo electrónico:")).toBeInTheDocument();
+        expect(screen.getByLabelText("Opinión o consulta:")).toBeInTheDocument();
     });
 
-    it("envía el formulario y limpia los campos", () => {
-    render(<Contacto />);
-    const nombreInput = screen.getByTestId("nombre-input");
-    const emailInput = screen.getByTestId("email-input");
-    const mensajeTextarea = screen.getByTestId("mensaje-textarea");
-    const submitButton = screen.getByTestId("submit-button");
+    it("Muestra mensaje de error si los campos estan vacios al enviar el formulario", async () => {
+        render(
+            <MemoryRouter>
+                <Contact />
+            </MemoryRouter>
+        );
+        const submitButton = screen.getByText("Enviar");
 
-    // Mock para alert
-    const alertMock = vi.spyOn(window, "alert").mockImplementation(() => {});
-
-    fireEvent.change(nombreInput, { target: { value: "Samuel" } });
-    fireEvent.change(emailInput, { target: { value: "samuel@test.com" } });
-    fireEvent.change(mensajeTextarea, { target: { value: "Hola, soy Samuel" } });
-
-    fireEvent.click(submitButton);
-
-    expect(alertMock).toHaveBeenCalledWith(
-        "Gracias Samuel, tu mensaje ha sido enviado!"
-    );
-
-    // Verificar que se limpien los campos
-    expect((nombreInput as HTMLInputElement).value).toBe("");
-    expect((emailInput as HTMLInputElement).value).toBe("");
-    expect((mensajeTextarea as HTMLTextAreaElement).value).toBe("");
-
-    alertMock.mockRestore();
+        fireEvent.click(submitButton);
+        expect(await screen.findByText("El nombre debe tener entre 3 y 50 caracteres")).toBeInTheDocument();
+        expect(await screen.findByText("Ingresa un correo válido (usuario@dominio.com)")).toBeInTheDocument();
+        expect(await screen.findByText("El mensaje debe tener al menos 5 caracteres")).toBeInTheDocument();
     });
+
+    it("Muestra mensaje de exito al enviar el formulario con datos validos", async () => {
+        render(
+            <MemoryRouter>
+                <Contact />
+            </MemoryRouter>
+        );
+        const nameInput = screen.getByLabelText("Nombre:");
+        const emailInput = screen.getByLabelText("Correo electrónico:");
+        const messageInput = screen.getByLabelText("Opinión o consulta:");
+        const submitButton = screen.getByText("Enviar");
+        fireEvent.change(nameInput, { target: { value: "Juan Perez" } });
+        fireEvent.change(emailInput, { target: { value: "juan@gmail.com" } });
+        fireEvent.change(messageInput, { target: { value: "Me gusta su sitio web!" } });
+        fireEvent.click(submitButton);
+
+        expect(await screen.findByText("¡Gracias por tu mensaje, Juan Perez! Lo hemos recibido correctamente.")).toBeInTheDocument();
+    });
+
 });
