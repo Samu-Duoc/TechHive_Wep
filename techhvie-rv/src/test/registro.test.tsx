@@ -1,125 +1,64 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import Register from "../pages/registro";
 
-describe("Register Component", () => {
-  it("muestra todos los campos del formulario de registro", () => {
-    render(
-      <MemoryRouter>
-        <Register onRegisterSuccess={() => {}} />
-      </MemoryRouter>
-    );
+import RegisterIn from "../pages/registro";
 
-    expect(screen.getByLabelText(/nombre de usuario/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/correo electrónico/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/confirmar contraseña/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/soy mayor de edad/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /registrarse/i })).toBeInTheDocument();
-  });
 
-  it("muestra errores cuando se envía el formulario vacío", async () => {
-    render(
-      <MemoryRouter>
-        <Register onRegisterSuccess={() => {}} />
-      </MemoryRouter>
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: /registrarse/i }));
-
-    expect(await screen.findByText(/el nombre de usuario es obligatorio/i)).toBeInTheDocument();
-    expect(await screen.findByText(/el correo es obligatorio/i)).toBeInTheDocument();
-    expect(await screen.findByText(/la contraseña es obligatoria/i)).toBeInTheDocument();
-    expect(await screen.findByText(/debes ser mayor de edad para registrarte/i)).toBeInTheDocument();
-  });
-
-  it("valida el formato del email", async () => {
-    render(
-      <MemoryRouter>
-        <Register onRegisterSuccess={() => {}} />
-      </MemoryRouter>
-    );
-
-    fireEvent.change(screen.getByLabelText(/nombre de usuario/i), {
-      target: { value: "testuser" },
+describe("Register Page", () => {
+  it("Muestra los campos del formulario de registro", () => {
+        render(
+            <MemoryRouter>
+                <RegisterIn  />
+            </MemoryRouter>
+        );
+        expect(screen.getByLabelText("Nombre")).toBeInTheDocument();
+        expect(screen.getByLabelText("Correo")).toBeInTheDocument();
+        expect(screen.getByLabelText("Usuario")).toBeInTheDocument();
+        expect(screen.getByLabelText("Contraseña")).toBeInTheDocument();
+        expect(screen.getByLabelText("Confirmar Contraseña")).toBeInTheDocument();
+        expect(screen.getByLabelText("Teléfono")).toBeInTheDocument();
+        expect(screen.getByLabelText("Fecha de Nacimiento")).toBeInTheDocument();
     });
-    fireEvent.change(screen.getByLabelText(/correo electrónico/i), {
-      target: { value: "emailinvalido" },
-    });
-    fireEvent.change(screen.getByLabelText(/contraseña/i), {
-      target: { value: "1234" },
-    });
-    fireEvent.change(screen.getByLabelText(/confirmar contraseña/i), {
-      target: { value: "1234" },
-    });
-    fireEvent.click(screen.getByLabelText(/soy mayor de edad/i));
-    fireEvent.click(screen.getByRole("button", { name: /registrarse/i }));
 
-    expect(await screen.findByText(/formato de correo inválido/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/correo electrónico/i)).toHaveClass("form-control", "is-invalid");
-  });
+    it("Muestra mensaje de error si los campos estan vacios al enviar el formulario", async () => {
+        render(
+            <MemoryRouter>
+                <RegisterIn  />
+            </MemoryRouter>
+        );
+        const submitButton = screen.getByText("Registrarse");
+        fireEvent.click(submitButton);
 
-  it("valida la longitud de la contraseña", async () => {
-    render(
-      <MemoryRouter>
-        <Register onRegisterSuccess={() => {}} />
-      </MemoryRouter>
-    );
-
-    fireEvent.change(screen.getByLabelText(/correo electrónico/i), {
-      target: { value: "test@test.com" },
+        expect(await screen.findByText("Nombre debe contener 3 a 20 caracteres")).toBeInTheDocument();
+        expect(await screen.findByText("Correo debe tener un formato válido (usuario@dominio.com)")).toBeInTheDocument();
+        expect(await screen.findByText("Usuario debe contener 4 a 20 caracteres")).toBeInTheDocument();
+        expect(await screen.findByText("La contraseña debe contener al menos 8 caracteres")).toBeInTheDocument();
+        expect(await screen.findByText("Debe aceptar los términos y condiciones")).toBeInTheDocument();
     });
-    fireEvent.change(screen.getByLabelText(/contraseña/i), {
-      target: { value: "123" },
+
+    it("Muestra mensaje de exito al enviar el formulario con datos validos", async () => {
+        render(
+            <MemoryRouter>
+                <RegisterIn />
+            </MemoryRouter>
+        );
+
+        const alertSpy = vi.spyOn(window, 'alert');
+        const nameInput = screen.getByLabelText("Nombre");
+        const emailInput = screen.getByLabelText("Correo");
+        const userInput = screen.getByLabelText("Usuario");
+        const passwordInput = screen.getByLabelText("Contraseña");
+        const cPasswordInput = screen.getByLabelText("Confirmar Contraseña");
+        const termsCheckbox = screen.getByLabelText("Acepto los términos y condiciones");
+        const submitButton = screen.getByText("Registrarse");
+        fireEvent.change(nameInput, { target: { value: "Juan Perez" } });
+        fireEvent.change(emailInput, { target: { value: "juan@gmail.com" } });
+        fireEvent.change(userInput, { target: { value: "juanp" } });
+        fireEvent.change(passwordInput, { target: { value: "password123" } });
+        fireEvent.change(cPasswordInput, { target: { value: "password123" } });
+        fireEvent.click(termsCheckbox);
+        fireEvent.click(submitButton);
+        expect(alertSpy).toHaveBeenCalledWith("¡Se ha registrado correctamente!");
     });
-    fireEvent.click(screen.getByRole("button", { name: /registrarse/i }));
-
-    expect(await screen.findByText(/la contraseña debe tener al menos 4 caracteres/i)).toBeInTheDocument();
-  });
-
-  it("realiza el registro con credenciales válidas", async () => {
-    const onRegisterSuccess = vi.fn();
-
-    render(
-      <MemoryRouter>
-        <Register onRegisterSuccess={onRegisterSuccess} />
-      </MemoryRouter>
-    );
-
-    fireEvent.change(screen.getByLabelText(/nombre de usuario/i), {
-      target: { value: "testuser" },
-    });
-    fireEvent.change(screen.getByLabelText(/correo electrónico/i), {
-      target: { value: "demo@gmail.com" },
-    });
-    fireEvent.change(screen.getByLabelText(/contraseña/i), {
-      target: { value: "1234" },
-    });
-    fireEvent.change(screen.getByLabelText(/confirmar contraseña/i), {
-      target: { value: "1234" },
-    });
-    fireEvent.click(screen.getByLabelText(/soy mayor de edad/i));
-    fireEvent.click(screen.getByRole("button", { name: /registrarse/i }));
-
-    expect(onRegisterSuccess).toHaveBeenCalled();
-  });
-
-  it("muestra error cuando las contraseñas no coinciden", async () => {
-    render(
-      <MemoryRouter>
-        <Register onRegisterSuccess={() => {}} />
-      </MemoryRouter>
-    );
-
-    fireEvent.change(screen.getByLabelText(/contraseña/i), {
-      target: { value: "1234" },
-    });
-    fireEvent.change(screen.getByLabelText(/confirmar contraseña/i), {
-      target: { value: "5678" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: /registrarse/i }));
-
-    expect(await screen.findByText(/las contraseñas no coinciden/i)).toBeInTheDocument();
-  });
 });
