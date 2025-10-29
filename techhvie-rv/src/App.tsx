@@ -3,13 +3,13 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/NavBar"; // CompoNENte Navbar
 import Inicio from "./pages/inicio";
 import Contacto from "./pages/contacto";
-import Nosotros from "./pages/nosotros";
 import Productos from "./pages/productos";
 import Login from "./pages/Login";
 import Registro from "./pages/registro";
 import Pago from "./pages/pago";
 
 import "./App.css";
+
 
 function App() {
   const handleLoginSuccess = () => {
@@ -26,7 +26,6 @@ function App() {
         <Routes>
           <Route path="/" element={<Inicio />} />
           <Route path="/productos" element={<Productos />} />
-          <Route path="/nosotros" element={<Nosotros />} />
           <Route path="/contacto" element={<Contacto />} />
           <Route
             path="/login"

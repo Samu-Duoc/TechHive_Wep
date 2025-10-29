@@ -12,6 +12,8 @@ import { ShoppingCart } from "lucide-react";
 import "../styles/global.css";
 import "../styles/carrito.css";
 import Carrito from "../pages/Carrito";
+import '../styles/productos.css';
+
 
 const NavBarTechHive: React.FC = () => {
   const [showCart, setShowCart] = useState(false);
@@ -22,7 +24,6 @@ const NavBarTechHive: React.FC = () => {
       {/* === NAVBAR PRINCIPAL === */}
       <Navbar
         expand="lg"
-        sticky="top"
         className="tech-navbar"
         data-bs-theme="light"
       >
@@ -60,9 +61,6 @@ const NavBarTechHive: React.FC = () => {
                 </Nav.Link>
                 <Nav.Link as={Link} to="/productos">
                   Productos
-                </Nav.Link>
-                <Nav.Link as={Link} to="/nosotros">
-                  Nosotros
                 </Nav.Link>
                 <Nav.Link as={Link} to="/contacto">
                   Contacto
