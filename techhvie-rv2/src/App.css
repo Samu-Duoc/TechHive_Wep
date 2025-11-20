@@ -1,0 +1,24 @@
+/* App.css - sólo para layout general */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding-top: 100px; /* separa del navbar fijo */
+  padding-bottom: 60px; /* deja espacio para el footer fijo */
+}
+
+.footer {
+  background-color: var(--surface);
+  color: var(--text);
+}
+
+
+.main-content {
+  flex: 1;
+  padding-top: 85px; /* era 100px, ajustado al nuevo alto */
+  padding-bottom: 60px;
+}

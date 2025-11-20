@@ -1,0 +1,23 @@
+/* === CATEGORÍAS === */
+.btn-group .btn {
+  border-radius: 25px !important;
+  border: 2px solid rgba(231, 182, 43, 0.3) !important;
+  background: rgba(231, 182, 43, 0.1) !important;
+  color: #3C545C !important;
+  font-weight: 600;
+  padding: 8px 18px !important;
+  transition: all 0.3s ease;
+}
+
+.btn-group .btn:hover {
+  background: rgba(231, 182, 43, 0.25) !important;
+  border-color: var(--primary) !important;
+  transform: translateY(-2px);
+}
+
+.btn-group .btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+  color: white !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 3px 12px rgba(231, 182, 43, 0.4);
+}
