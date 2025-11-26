@@ -132,7 +132,18 @@ const NavBar: React.FC = () => {
 
 const NavCartContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { carrito, vaciarCarrito, actualizarCantidad } = useCarrito();
-  const total = carrito.reduce((s, p) => s + p.precio * p.cantidad, 0);
+  const total = carrito.reduce((s, p) => s + (Number(p.precio) || 0) * (p.cantidad || 0), 0);
+
+  const getCartImage = (item: any) => {
+    if (item == null) return '/img/logo.jpg';
+    if (typeof item.imagen === 'string' && item.imagen) {
+      if (item.imagen.startsWith('http') || item.imagen.startsWith('/') || item.imagen.startsWith('data:')) return item.imagen;
+      // otherwise, treat as relative path
+      return item.imagen;
+    }
+    if (item.imagenBase64) return `data:image/*;base64,${item.imagenBase64}`;
+    return '/img/logo.jpg';
+  };
 
   return (
     <div>
@@ -140,9 +151,9 @@ const NavCartContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         <p className="empty-cart">Tu carrito está vacío.</p>
       ) : (
         <ListGroup variant="flush">
-          {carrito.map((item) => (
+            {carrito.map((item) => (
             <ListGroup.Item key={item.id} className="cart-item d-flex align-items-center">
-              <img src={item.imagen || '/img/logo.jpg'} alt={item.titulo} className="cart-img me-3" />
+              <img src={getCartImage(item)} alt={item.titulo} className="cart-img me-3" onError={(e)=>{(e.target as HTMLImageElement).src='/img/logo.jpg'}} />
               <div style={{ flex: 1 }}>
                 <div className="fw-bold">{item.titulo}</div>
                 <div className="small text-muted">${item.precio.toLocaleString('es-CL')} x {item.cantidad}</div>
