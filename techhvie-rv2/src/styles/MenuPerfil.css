@@ -1,0 +1,37 @@
+.menu-perfil {
+    width: 220px;
+    background: linear-gradient(180deg, rgba(231,182,43,0.04), transparent);
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.04);
+}
+.menu-perfil .menu-title {
+    font-weight: 700;
+    color: var(--surface-dark);
+    background: transparent;
+}
+.menu-perfil .list-group-item {
+    border: none;
+    padding: 12px 16px;
+}
+.menu-perfil .list-group-item:hover {
+    background: rgba(231,182,43,0.06);
+    cursor: pointer;
+}
+
+.perfil-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 20px;
+    align-items: start;
+}
+.perfil-card {
+    padding: 20px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: var(--shadow);
+}
+.perfil-field {
+    margin-bottom: 12px;
+}
+.perfil-field label { display:block; font-weight:600; margin-bottom:6px }
+.perfil-field .value { padding:10px 12px; background: #f7f7f7; border-radius:8px }

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../App.css";
 import "../styles/auth.css";
+import { useAuth } from "../context/AuthContext";
 
 interface LoginProps {
   onLoginSuccess?: () => void;
@@ -19,6 +20,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     login?: string;
   }>({});
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const validate = (): boolean => {
     const newErrors: { email?: string; password?: string } = {};
@@ -68,11 +70,14 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
       const usuario = await resp.json();
 
-      //Guardar datos en localStorage para usar en Navbar, perfil
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("usuario", JSON.stringify(usuario)); // UsuarioDTO completo
-      if (usuario.rol) {
-        localStorage.setItem("rol", usuario.rol); // CLIENTE / ADMIN / VENDEDOR
+      // Actualizar contexto de autenticación (esto también guardará en localStorage desde AuthProvider)
+      try {
+        login(usuario);
+      } catch (e) {
+        // fallback: guardar en localStorage si por alguna razón el contexto no está disponible
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("usuario", JSON.stringify(usuario));
+        if (usuario.rol) localStorage.setItem("rol", usuario.rol);
       }
 
       setErrors({});

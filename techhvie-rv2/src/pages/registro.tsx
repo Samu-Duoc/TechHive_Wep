@@ -81,9 +81,9 @@ const RegisterIn: React.FC = () => {
       todoOk = false;
     } else newErrors.email = "";
 
-    // Password (mínimo 10 para calzar con el backend)
-    if (formData.password.length < 10) {
-      newErrors.password = "La contraseña debe tener al menos 10 caracteres";
+    // Password (mínimo 8 para calzar con el backend)
+    if (formData.password.length > 8) {
+      newErrors.password = "La contraseña debe tener 8 caracteres y un caracter especial como + , -, *, /";
       todoOk = false;
     } else newErrors.password = "";
 
@@ -93,15 +93,13 @@ const RegisterIn: React.FC = () => {
       todoOk = false;
     } else newErrors.cPassword = "";
 
-    // Teléfono (8–12 dígitos)
+    // Teléfono (9 dígitos)
     if (!formData.telefono) {
       newErrors.telefono = "El teléfono es obligatorio";
       todoOk = false;
     } else if (
-      formData.telefono.length < 8 ||
-      formData.telefono.length > 12
-    ) {
-      newErrors.telefono = "El teléfono debe tener entre 8 y 12 números";
+      formData.telefono.length < 9 ) {
+      newErrors.telefono = "El teléfono debe tener 9 caracteres";
       todoOk = false;
     } else newErrors.telefono = "";
 

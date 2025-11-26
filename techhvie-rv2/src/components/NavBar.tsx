@@ -5,7 +5,7 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Trash2 } from "lucide-react";
 import "../styles/global.css";
 import "../styles/carrito.css";
 import '../styles/productos.css';
@@ -13,21 +13,13 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { useCarrito } from "../context/CarritoContext";
+import { useAuth } from "../context/AuthContext";
 
 
 const NavBar: React.FC = () => {
   const [showCart, setShowCart] = useState(false);
   const navigate = useNavigate();
-  // Parse usuario safely to decide which links to show
-  let usuario: any = null;
-  try {
-    const raw = localStorage.getItem("usuario");
-    usuario = raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    usuario = null;
-  }
-
-  const esAdminOrVendedor = usuario && (usuario.rol === "ADMIN" || usuario.rol === "VENDEDOR");
+  const { isLoggedIn, logout } = useAuth();
 
   return (
     <>
@@ -56,18 +48,10 @@ const NavBar: React.FC = () => {
               <Nav.Link as={Link} to="/">
                 Inicio
               </Nav.Link>
-              <Nav.Link as={Link} to="/productos">
-                Productos
-              </Nav.Link>
-              <Nav.Link as={Link} to="/contacto">
-                Contacto
-              </Nav.Link>
+              <Nav.Link as={Link} to="/productos">Productos</Nav.Link>
+              <Nav.Link as={Link} to="/contacto">Contacto</Nav.Link>
 
-              {esAdminOrVendedor && (
-                <Nav.Link as={Link} to="/inventario">
-                  Inventario
-                </Nav.Link>
-              )}
+              {/* Inventario moved to profile menu; do not show in main navbar */}
 
               {/* Dropdown de cuenta dinámico */}
               <NavDropdown
@@ -75,7 +59,7 @@ const NavBar: React.FC = () => {
                 id="navbarScrollingDropdown"
                 className="text-center"
               >
-                {!localStorage.getItem("isLoggedIn") ? (
+                {!isLoggedIn ? (
                   <>
                     <NavDropdown.Item as={Link} to="/login">
                       Iniciar sesión
@@ -86,14 +70,13 @@ const NavBar: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <NavDropdown.Item as={Link} to="/perfil">
-                      Ver perfil
-                    </NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/cuenta/perfil">Ver cuenta</NavDropdown.Item>
                     <NavDropdown.Divider />
                     <NavDropdown.Item
                       onClick={() => {
-                        localStorage.removeItem("isLoggedIn");
-                        navigate('/'); // redirige al inicio después de cerrar sesión
+                        // useAuth logout + navigate
+                        try { logout(); } catch {};
+                        navigate('/');
                       }}
                     >
                       Cerrar sesión
@@ -118,11 +101,11 @@ const NavBar: React.FC = () => {
       </Navbar>
 
       {/* === CARRITO LATERAL: Offcanvas local que usa useCarrito (no modifica Carrito.tsx) === */}
-      <Offcanvas show={showCart} onHide={() => setShowCart(false)} placement="end">
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Carrito</Offcanvas.Title>
+      <Offcanvas show={showCart} onHide={() => setShowCart(false)} placement="end" className="carrito-panel">
+        <Offcanvas.Header closeButton className="cart-header">
+          <Offcanvas.Title className="cart-title">Carrito</Offcanvas.Title>
         </Offcanvas.Header>
-        <Offcanvas.Body>
+        <Offcanvas.Body className="cart-body">
           <NavCartContent onClose={() => setShowCart(false)} />
         </Offcanvas.Body>
       </Offcanvas>
@@ -131,7 +114,7 @@ const NavBar: React.FC = () => {
 };
 
 const NavCartContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const { carrito, vaciarCarrito, actualizarCantidad } = useCarrito();
+  const { carrito, vaciarCarrito, actualizarCantidad, eliminarDelCarrito } = useCarrito();
   const total = carrito.reduce((s, p) => s + (Number(p.precio) || 0) * (p.cantidad || 0), 0);
 
   const getCartImage = (item: any) => {
@@ -165,6 +148,18 @@ const NavCartContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                   <span style={{ margin: '0 8px' }}>{item.cantidad}</span>
                   <Button size="sm" variant="outline-secondary" onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}>+</Button>
                 </div>
+              </div>
+              <div className="ms-2 d-flex flex-column align-items-center">
+                <Button
+                  size="sm"
+                  variant="danger"
+                  className="delete-btn"
+                  aria-label={`Eliminar ${item.titulo}`}
+                  onClick={() => eliminarDelCarrito(item.id)}
+                  title="Eliminar"
+                >
+                  <Trash2 size={14} />
+                </Button>
               </div>
             </ListGroup.Item>
           ))}

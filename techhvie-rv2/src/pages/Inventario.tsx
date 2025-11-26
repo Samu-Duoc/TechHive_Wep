@@ -1,7 +1,9 @@
 import React, { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import axios from "axios";
 import "../styles/global.css";
-import "../styles/auth.css";
+import "../styles/Inventario.css";
+import { useAuth } from "../context/AuthContext";
+import MenuPerfil from './MenuPerfil';
 
 const BASE_URL = (import.meta as any).env?.VITE_API_URL ?? "http://localhost:8082";
 const api = axios.create({ baseURL: BASE_URL });
@@ -59,8 +61,7 @@ interface Producto {
     const [archivos, setArchivos] = useState<Record<number, File | null>>({});
     const [nuevaImagen, setNuevaImagen] = useState<File | null>(null);
 
-    const rawUser = localStorage.getItem("usuario");
-    const usuario: UsuarioLS | null = rawUser ? JSON.parse(rawUser) : null;
+    const { usuario } = useAuth();
 
     if (!usuario || (usuario.rol !== "ADMIN" && usuario.rol !== "VENDEDOR")) {
         return (
@@ -291,12 +292,19 @@ interface Producto {
         });
     };
 
-    return (
-        <div className="container">
-        <h2>{esAdmin ? "Panel de Inventario" : "Panel de Inventario"}</h2>
-        <p className="text-muted">Gestiona los productos de TechHive: crea, edita, elimina y sube imágenes.</p>
+        return (
+                <div className="container">
+                <h2>{esAdmin ? "Panel de Inventario" : "Panel de Inventario"}</h2>
+                <p className="text-muted">Gestiona los productos de TechHive: crea, edita, elimina y sube imágenes.</p>
 
-        <div className="card mb-4 p-3">
+                <div className="perfil-layout">
+                    <div>
+                        {/* menú lateral para navegación rápida dentro de inventario */}
+                        <MenuPerfil role={usuario?.rol ?? null} />
+                    </div>
+
+                    <div>
+                        <div className="card mb-4 p-3">
             <h4>{editandoId ? "Editar producto" : "Crear nuevo producto"}</h4>
             <form onSubmit={handleSubmit} className="row g-3">
             <div className="col-md-4">
@@ -417,9 +425,9 @@ interface Producto {
                 )}
             </div>
             </form>
-        </div>
+            </div>
 
-        <div className="card p-3">
+            <div className="card p-3">
             <div className="d-flex justify-content-between align-items-center mb-2">
             <h4>Listado de productos</h4>
             <button className="btn btn-outline-primary btn-sm" onClick={() => cargarProductos()}>
@@ -488,8 +496,10 @@ interface Producto {
                 </table>
             </div>
             )}
-        </div>
-        </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
     );
 };
 

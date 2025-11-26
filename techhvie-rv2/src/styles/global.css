@@ -189,6 +189,21 @@ p { font-size: 1.1rem; color: #000; }
   gap: 2rem;
 }
 
+/* Botón grande reutilizable para hero */
+.btn-large {
+  display: inline-block;
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-weight: 800;
+  color: #111;
+  text-decoration: none;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn-large:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(167,109,21,0.12);
+}
+
 .hero-logo {
   width: 300px;
   height: auto;
