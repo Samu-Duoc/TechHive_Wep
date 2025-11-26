@@ -193,3 +193,5 @@ export const useCarrito = (): CarritoContextType => {
     throw new Error("useCarrito debe usarse dentro de un CarritoProvider");
   return context;
 };
+
+export default CarritoContext;

@@ -8,11 +8,14 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 import { ShoppingCart } from "lucide-react";
 import "../styles/global.css";
 import "../styles/carrito.css";
-import Carrito from "../pages/Carrito";
 import '../styles/productos.css';
+import Offcanvas from 'react-bootstrap/Offcanvas';
+import Button from 'react-bootstrap/Button';
+import ListGroup from 'react-bootstrap/ListGroup';
+import { useCarrito } from "../context/CarritoContext";
 
 
-const NavBarTechHive: React.FC = () => {
+const NavBar: React.FC = () => {
   const [showCart, setShowCart] = useState(false);
   const navigate = useNavigate();
   // Parse usuario safely to decide which links to show
@@ -114,10 +117,60 @@ const NavBarTechHive: React.FC = () => {
         </Container>
       </Navbar>
 
-      {/* === CARRITO LATERAL === */}
-      <Carrito visible={showCart} onClose={() => setShowCart(false)} />
+      {/* === CARRITO LATERAL: Offcanvas local que usa useCarrito (no modifica Carrito.tsx) === */}
+      <Offcanvas show={showCart} onHide={() => setShowCart(false)} placement="end">
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>Carrito</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <NavCartContent onClose={() => setShowCart(false)} />
+        </Offcanvas.Body>
+      </Offcanvas>
     </>
   );
 };
 
-export default NavBarTechHive;
+const NavCartContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const { carrito, vaciarCarrito, actualizarCantidad } = useCarrito();
+  const total = carrito.reduce((s, p) => s + p.precio * p.cantidad, 0);
+
+  return (
+    <div>
+      {carrito.length === 0 ? (
+        <p className="empty-cart">Tu carrito está vacío.</p>
+      ) : (
+        <ListGroup variant="flush">
+          {carrito.map((item) => (
+            <ListGroup.Item key={item.id} className="cart-item d-flex align-items-center">
+              <img src={item.imagen || '/img/logo.jpg'} alt={item.titulo} className="cart-img me-3" />
+              <div style={{ flex: 1 }}>
+                <div className="fw-bold">{item.titulo}</div>
+                <div className="small text-muted">${item.precio.toLocaleString('es-CL')} x {item.cantidad}</div>
+              </div>
+              <div className="d-flex flex-column align-items-end">
+                <div className="mb-1">${(item.precio * item.cantidad).toLocaleString('es-CL')}</div>
+                <div>
+                  <Button size="sm" variant="outline-secondary" onClick={() => actualizarCantidad(item.id, Math.max(1, item.cantidad - 1))}>-</Button>
+                  <span style={{ margin: '0 8px' }}>{item.cantidad}</span>
+                  <Button size="sm" variant="outline-secondary" onClick={() => actualizarCantidad(item.id, item.cantidad + 1)}>+</Button>
+                </div>
+              </div>
+            </ListGroup.Item>
+          ))}
+        </ListGroup>
+      )}
+
+      <div className="mt-3 d-flex justify-content-between align-items-center">
+        <strong>Total:</strong>
+        <strong>${total.toLocaleString('es-CL')}</strong>
+      </div>
+
+      <div className="mt-3 d-flex gap-2">
+        <Button variant="secondary" onClick={() => { vaciarCarrito(); onClose(); }}>Vaciar</Button>
+        <Button variant="primary" onClick={() => { /* futuro: checkout */ onClose(); }}>Ir a pagar</Button>
+      </div>
+    </div>
+  );
+};
+
+export default NavBar;
