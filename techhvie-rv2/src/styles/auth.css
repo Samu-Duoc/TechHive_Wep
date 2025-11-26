@@ -23,6 +23,9 @@
                 radial-gradient(circle at bottom left, rgba(99,67,26,0.1), transparent 60%),
                 #DCDED4;
     padding: 2rem;
+    gap: 2rem;
+    /* En pantallas grandes mostramos ilustración + formulario en fila */
+    flex-direction: row;
 }
 
 /* === CARD CENTRAL === */
@@ -31,17 +34,63 @@
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     width: 100%;
-    max-width: 420px;
+    max-width: 720px;
+    /* Allow the card to occupy more horizontal space on large screens */
+    flex: 1 1 620px;
     padding: 2.5rem;
     text-align: center;
-    nimation: fadeIn 0.4s ease-in-out;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+/* Ilustración lateral para login/registro */
+.auth-illustration {
+    /* Fixed size as requested: 600 x 500 */
+    flex: 0 0 600px;
+    width: 600px;
+    height: 500px;
+    border-radius: var(--radius);
+    background-color: #ffffff;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.auth-illustration img {
+    width: 600px;
+    height: 500px;
+    object-fit: cover;
+    display: block;
+}
+
+/* Crop/position registro image to hide unwanted square area and zoom slightly */
+.auth-illustration--registro .registro-img {
+    object-position: right center;
+    transform: scale(1.06);
+}
+
+/* Fallback when the image fails to load: show a subtle illustration-colored panel */
+.auth-illustration.no-img {
+    background: linear-gradient(180deg, #fffdf6 0%, #f6f0e6 50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-illustration.no-img::after {
+    content: "";
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(circle at 30% 30%, rgba(231,182,43,0.08), transparent 30%), rgba(242,239,232,0.6);
+    border-radius: 12px;
 }
 
 /* === TITULO === */
 .auth-card h2 {
     font-family: var(--font-heading);
     color: var(--primary-dark);
-    margin-bottom: 1.5rem;
+    margin-bottom: 3.2rem; /* más separación entre título y campos */
     letter-spacing: 0.5px;
 }
 
@@ -62,6 +111,11 @@
     outline: none;
     transition: all 0.3s ease;
     font-family: var(--font-main);
+}
+
+/* Espaciado entre campos */
+.form-input {
+    margin-bottom: 1.25rem;
 }
 
 .auth-form input:focus {
@@ -86,6 +140,43 @@
 .auth-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 12px rgba(167, 109, 21, 0.3);
+}
+
+/* Form actions: inline buttons (Registro + Volver) */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.form-actions .auth-btn {
+    width: auto; /* no full width here */
+    padding: 10px 22px;
+    min-width: 180px;
+}
+
+.form-actions .btn {
+    padding: 10px 14px;
+    border-radius: 8px;
+}
+
+/* Outline-style small CTA used in login for "Crear cuenta" */
+.auth-outline-btn {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    background: transparent;
+    font-weight: 600;
+    text-decoration: none;
+}
+.auth-outline-btn:hover {
+    background: var(--primary);
+    color: #111;
 }
 
 /* === LINKS SECUNDARIOS === */
@@ -116,6 +207,22 @@
     cursor: pointer;
 }
 
+/* Alinear checkbox y su label en la misma línea dentro del formulario */
+.form-input.termCond {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-input.termCond label {
+    margin: 0;
+}
+
+.form-input.termCond input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+}
+
 /* === ANIMACIONES === */
 @keyframes fadeIn {
     from {
@@ -132,5 +239,36 @@
 @media (max-width: 480px) {
     .auth-card {
     padding: 2rem 1.5rem;
+    }
+}
+
+/* Responsive: en móvil apilamos verticalmente */
+@media (max-width: 900px) {
+    .auth-page {
+        flex-direction: column;
+        padding: 1.25rem;
+    }
+
+    .auth-illustration {
+        width: 100%;
+        height: 260px;
+        max-width: none;
+        margin-bottom: 1rem;
+    }
+
+    .auth-card {
+        max-width: 720px;
+        width: 100%;
+        flex: none; /* remove horizontal flex on small screens so card fills width */
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-actions .auth-btn,
+    .form-actions .btn {
+        width: 100%;
     }
 }

@@ -1,270 +1,371 @@
-import React, { type FormEvent, useState, type ChangeEvent } from 'react';
+import React, { type FormEvent, useState, type ChangeEvent } from "react";
 import "../styles/auth.css";
 
-
-//Componente de Registro
+// Componente de Registro conectado al microservicio ms_auth_usuarios
 const RegisterIn: React.FC = () => {
   const [formData, setFormData] = useState({
-    nombre: '',
-    correo: '',
-    nombre_usu: '',
-    password: '',
-    cPassword: '',
-    telefono: '',
-    fec_nac: '',
-    termCond: false
+    nombre: "",
+    apellido: "",
+    rut: "",
+    email: "",
+    password: "",
+    cPassword: "",
+    telefono: "",
+    direccion: "",
+    termCond: false,
   });
 
-  // Componente de manejo de errores
   const [errors, setErrors] = useState({
-    nombre: '',
-    correo: '',
-    nombre_usu: '',
-    password: '',
-    cPassword: '',
-    telefono: '',
-    fec_nac: '',
-    termCond: ''
+    nombre: "",
+    apellido: "",
+    rut: "",
+    email: "",
+    password: "",
+    cPassword: "",
+    telefono: "",
+    direccion: "",
+    termCond: "",
+    backend: "",
   });
 
-  // Manejo de cambios en los inputs
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    
-    // Limpiar números para el campo teléfono
-    if (name === 'telefono') {
-      const cleaned = value.replace(/\D+/g, '');
-      setFormData(prev => ({
-        ...prev,
-        [name]: cleaned
-      }));
+
+    // Solo números para teléfono
+    if (name === "telefono") {
+      const cleaned = value.replace(/\D+/g, "");
+      setFormData((prev) => ({ ...prev, [name]: cleaned }));
       return;
     }
 
-    // Actualizar estado del formulario
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  // Validación del formulario
-  const validar = (e: FormEvent) => {
-    e.preventDefault();
+  const validar = (): boolean => {
     let todoOk = true;
-    const newErrors = { ...errors };
+    const newErrors = { ...errors, backend: "" };
 
-    // Validar nombre
-    if (formData.nombre.length < 3 || formData.nombre.length > 20 || formData.nombre.trim() === '') {
-      newErrors.nombre = 'Nombre debe contener 3 a 20 caracteres';
+    // Nombre
+    if (formData.nombre.trim().length < 3 || formData.nombre.trim().length > 50) {
+      newErrors.nombre = "Nombre debe contener entre 3 y 50 caracteres";
       todoOk = false;
-    } else {
-      newErrors.nombre = '';
-    }
+    } else newErrors.nombre = "";
 
-    // Validar correo
-    if (formData.correo.trim() === '' ||
-        !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.correo.trim())) {
-      newErrors.correo = 'Correo debe tener un formato válido (usuario@dominio.com)';
+    // Apellido
+    if (formData.apellido.trim().length < 3 || formData.apellido.trim().length > 50) {
+      newErrors.apellido = "Apellido debe contener entre 3 y 50 caracteres";
       todoOk = false;
-    } else if (formData.correo.length > 100) {
-      newErrors.correo = 'Correo NO debe ser mayor a 100 caracteres';
+    } else newErrors.apellido = "";
+
+    // RUT (validación simple, solo que no esté vacío)
+    if (!formData.rut.trim()) {
+      newErrors.rut = "El RUT es obligatorio";
       todoOk = false;
-    } else {
-      newErrors.correo = '';
-    }
+    } else newErrors.rut = "";
 
-    // Validar usuario
-    if (formData.nombre_usu.length < 4 || formData.nombre_usu.length > 20 || formData.nombre_usu.trim() === '') {
-      newErrors.nombre_usu = 'Usuario debe contener 4 a 20 caracteres';
+    // Email
+    if (
+      formData.email.trim() === "" ||
+      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+        formData.email.trim()
+      )
+    ) {
+      newErrors.email =
+        "Correo debe tener un formato válido (usuario@dominio.com)";
       todoOk = false;
-    } else {
-      newErrors.nombre_usu = '';
-    }
-
-    // Validar fecha de nacimiento
-    if (formData.fec_nac) {
-      const today = new Date();
-      const birth = new Date(formData.fec_nac);
-      let age = today.getFullYear() - birth.getFullYear();
-      const m = today.getMonth() - birth.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-        age--;
-      }
-      if (age < 18) {
-        newErrors.fec_nac = 'Debes ser mayor de 18 años para registrarte';
-        todoOk = false;
-      } else {
-        newErrors.fec_nac = '';
-      }
-    }
-
-    // Validar contraseña
-    if (formData.password.length < 8) {
-      newErrors.password = 'La contraseña debe contener al menos 8 caracteres';
+    } else if (formData.email.length > 100) {
+      newErrors.email = "Correo NO debe ser mayor a 100 caracteres";
       todoOk = false;
-    } else {
-      newErrors.password = '';
-    }
+    } else newErrors.email = "";
 
-    // Validar confirmación de contraseña
+    // Password (mínimo 10 para calzar con el backend)
+    if (formData.password.length < 10) {
+      newErrors.password = "La contraseña debe tener al menos 10 caracteres";
+      todoOk = false;
+    } else newErrors.password = "";
+
+    // Confirmar contraseña
     if (formData.cPassword !== formData.password) {
-      newErrors.cPassword = 'La contraseña ingresada no coincide';
+      newErrors.cPassword = "La contraseña ingresada no coincide";
       todoOk = false;
-    } else {
-      newErrors.cPassword = '';
-    }
+    } else newErrors.cPassword = "";
 
-    // Validar teléfono
-    if (formData.telefono && (formData.telefono.length < 8 || formData.telefono.length > 12)) {
-      newErrors.telefono = 'El teléfono debe tener entre 8 y 12 números';
+    // Teléfono (8–12 dígitos)
+    if (!formData.telefono) {
+      newErrors.telefono = "El teléfono es obligatorio";
       todoOk = false;
-    } else {
-      newErrors.telefono = '';
-    }
+    } else if (
+      formData.telefono.length < 8 ||
+      formData.telefono.length > 12
+    ) {
+      newErrors.telefono = "El teléfono debe tener entre 8 y 12 números";
+      todoOk = false;
+    } else newErrors.telefono = "";
 
-    // Validar términos y condiciones
+    // Dirección
+    if (!formData.direccion.trim()) {
+      newErrors.direccion = "La dirección es obligatoria";
+      todoOk = false;
+    } else newErrors.direccion = "";
+
+    // Términos
     if (!formData.termCond) {
-      newErrors.termCond = 'Debe aceptar los términos y condiciones';
+      newErrors.termCond = "Debes aceptar los términos y condiciones";
       todoOk = false;
-    } else {
-      newErrors.termCond = '';
-    }
+    } else newErrors.termCond = "";
 
     setErrors(newErrors);
+    return todoOk;
+  };
 
-    if (todoOk) {
-      alert('¡Se ha registrado correctamente!');
-      setFormData({
-        nombre: '',
-        correo: '',
-        nombre_usu: '',
-        password: '',
-        cPassword: '',
-        telefono: '',
-        fec_nac: '',
-        termCond: false
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!validar()) return;
+
+    try {
+      const response = await fetch("http://localhost:8081/auth/registro", {
+        // 🔧 cambia puerto si tu ms_auth_usuarios usa otro
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nombre: formData.nombre,
+          apellido: formData.apellido,
+          rut: formData.rut,
+          email: formData.email,
+          password: formData.password,
+          telefono: formData.telefono,
+          direccion: formData.direccion,
+        }),
       });
+
+      if (!response.ok) {
+        const text = await response.text();
+        setErrors((prev) => ({
+          ...prev,
+          backend:
+            text ||
+            "Error al registrar usuario. Verifica los datos e intenta nuevamente.",
+        }));
+        return;
+      }
+
+      alert("¡Se ha registrado correctamente!");
+
+      // Reset formulario
+      setFormData({
+        nombre: "",
+        apellido: "",
+        rut: "",
+        email: "",
+        password: "",
+        cPassword: "",
+        telefono: "",
+        direccion: "",
+        termCond: false,
+      });
+      setErrors({
+        nombre: "",
+        apellido: "",
+        rut: "",
+        email: "",
+        password: "",
+        cPassword: "",
+        telefono: "",
+        direccion: "",
+        termCond: "",
+        backend: "",
+      });
+
+      // Enviar al login
+      window.location.href = "/login";
+    } catch (error) {
+      console.error(error);
+      setErrors((prev) => ({
+        ...prev,
+        backend: "Error de conexión con el servidor de usuarios.",
+      }));
     }
   };
 
-  // ...existing code...
   return (
     <div className="auth-page">
+      <div className="auth-illustration auth-illustration--registro" aria-hidden>
+        <img
+          className="login-img"
+          src="/img/login.png"
+          alt="Regístrate"
+          onError={(e) => {
+            const img = e.currentTarget as HTMLImageElement;
+            img.style.display = 'none';
+            const parent = img.parentElement;
+            if (parent) parent.classList.add('no-img');
+          }}
+        />
+      </div>
       <div className="auth-card">
-        <form className="auth-form" onSubmit={validar}>
-        <div className="form-input">
-          <label htmlFor="nombre">Nombre</label>
-          <input
-            id="nombre"
-            type="text"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleInputChange}
-            placeholder="Nombre"
-          />
-          {errors.nombre && <div className="mensajeError">{errors.nombre}</div>}
-        </div>
+        <h2>Crear cuenta</h2>
 
-        <div className="form-input">
-          <label htmlFor="correo">Correo</label>
-          <input
-            id="correo"
-            type="email"
-            name="correo"
-            value={formData.correo}
-            onChange={handleInputChange}
-            placeholder="Correo"
-          />
-          {errors.correo && <div className="mensajeError">{errors.correo}</div>}
-        </div>
+        {errors.backend && (
+          <p className="mensajeError text-center">{errors.backend}</p>
+        )}
 
-        <div className="form-input">
-          <label htmlFor="nombre_usu">Usuario</label>
-          <input
-            id="nombre_usu"
-            type="text"
-            name="nombre_usu"
-            value={formData.nombre_usu}
-            onChange={handleInputChange}
-            placeholder="Usuario"
-          />
-          {errors.nombre_usu && <div className="mensajeError">{errors.nombre_usu}</div>}
-        </div>
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="form-input">
+            <label htmlFor="nombre">Nombre</label>
+            <input
+              id="nombre"
+              type="text"
+              name="nombre"
+              value={formData.nombre}
+              onChange={handleInputChange}
+              placeholder="Nombre"
+            />
+            {errors.nombre && (
+              <div className="mensajeError">{errors.nombre}</div>
+            )}
+          </div>
 
-        <div className="form-input">
-          <label htmlFor="password">Contraseña</label>
-          <input
-            id="password"
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            placeholder="Contraseña"
-          />
-          {errors.password && <div className="mensajeError">{errors.password}</div>}
-        </div>
+          <div className="form-input">
+            <label htmlFor="apellido">Apellido</label>
+            <input
+              id="apellido"
+              type="text"
+              name="apellido"
+              value={formData.apellido}
+              onChange={handleInputChange}
+              placeholder="Apellido"
+            />
+            {errors.apellido && (
+              <div className="mensajeError">{errors.apellido}</div>
+            )}
+          </div>
 
-        <div className="form-input">
-          <label htmlFor="cPassword">Confirmar Contraseña</label>
-          <input
-            id="cPassword"
-            type="password"
-            name="cPassword"
-            value={formData.cPassword}
-            onChange={handleInputChange}
-            placeholder="Confirmar Contraseña"
-          />
-          {errors.cPassword && <div className="mensajeError">{errors.cPassword}</div>}
-        </div>
+          <div className="form-input">
+            <label htmlFor="rut">RUT</label>
+            <input
+              id="rut"
+              type="text"
+              name="rut"
+              value={formData.rut}
+              onChange={handleInputChange}
+              placeholder="Ej: 12345678K"
+            />
+            {errors.rut && <div className="mensajeError">{errors.rut}</div>}
+          </div>
 
-        <div className="form-input telefono">
-          <label htmlFor="telefono">Teléfono</label>
-          <input
-            id="telefono"
-            type="tel"
-            name="telefono"
-            value={formData.telefono}
-            onChange={handleInputChange}
-            placeholder="Teléfono"
-            inputMode="numeric"
-            autoComplete="tel"
-          />
-          {errors.telefono && <div className="mensajeError">{errors.telefono}</div>}
-        </div>
+          <div className="form-input">
+            <label htmlFor="email">Correo</label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder="Correo"
+            />
+            {errors.email && (
+              <div className="mensajeError">{errors.email}</div>
+            )}
+          </div>
 
-        <div className="form-input">
-          <label htmlFor="fec_nac">Fecha de Nacimiento</label>
-          <input
-            id="fec_nac"
-            type="date"
-            name="fec_nac"
-            value={formData.fec_nac}
-            onChange={handleInputChange}
-          />
-          {errors.fec_nac && <div className="mensajeError">{errors.fec_nac}</div>}
-        </div>
+          <div className="form-input">
+            <label htmlFor="telefono">Teléfono</label>
+            <input
+              id="telefono"
+              type="tel"
+              name="telefono"
+              value={formData.telefono}
+              onChange={handleInputChange}
+              placeholder="Teléfono"
+              inputMode="numeric"
+            />
+            {errors.telefono && (
+              <div className="mensajeError">{errors.telefono}</div>
+            )}
+          </div>
 
-        <div className="form-input termCond">
-          <input
-            id="termCond"
-            type="checkbox"
-            name="termCond"
-            checked={formData.termCond}
-            onChange={handleInputChange}
-          />
-          <label htmlFor="termCond">Acepto los términos y condiciones</label>
-          {errors.termCond && <div className="mensajeError">{errors.termCond}</div>}
-        </div>
-        
-        <div className="form-actions d-flex">
-          <button type="submit" className="auth-btn">Registrarse</button>
-          <button type="button" className="btn btn-secondary" onClick={() => window.history.back()}>Volver</button>
-        </div>
-      </form>
+          <div className="form-input">
+            <label htmlFor="direccion">Dirección</label>
+            <input
+              id="direccion"
+              type="text"
+              name="direccion"
+              value={formData.direccion}
+              onChange={handleInputChange}
+              placeholder="Dirección"
+            />
+            {errors.direccion && (
+              <div className="mensajeError">{errors.direccion}</div>
+            )}
+          </div>
+
+          <div className="form-input">
+            <label htmlFor="password">Contraseña</label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              placeholder="Contraseña"
+            />
+            {errors.password && (
+              <div className="mensajeError">{errors.password}</div>
+            )}
+          </div>
+
+          <div className="form-input">
+            <label htmlFor="cPassword">Confirmar contraseña</label>
+            <input
+              id="cPassword"
+              type="password"
+              name="cPassword"
+              value={formData.cPassword}
+              onChange={handleInputChange}
+              placeholder="Confirmar contraseña"
+            />
+            {errors.cPassword && (
+              <div className="mensajeError">{errors.cPassword}</div>
+            )}
+          </div>
+
+          <div className="form-input termCond">
+            <input
+              id="termCond"
+              type="checkbox"
+              name="termCond"
+              checked={formData.termCond}
+              onChange={handleInputChange}
+            />
+            <label htmlFor="termCond">
+              Acepto los términos y condiciones
+            </label>
+            {errors.termCond && (
+              <div className="mensajeError">{errors.termCond}</div>
+            )}
+          </div>
+
+          <div className="form-actions d-flex">
+            <button type="submit" className="auth-btn">
+              Registrarse
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => window.history.back()}
+            >
+              Volver
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
-}
-export default RegisterIn;
+};
 
+export default RegisterIn;

@@ -21,3 +21,175 @@
   border-color: var(--primary) !important;
   box-shadow: 0 3px 12px rgba(231, 182, 43, 0.4);
 }
+
+/* === IMÁGENES: hacerlas cuadradas y evitar tamaños enormes === */
+.image-wrapper,
+.productos-img-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* fuerza cuadrado */
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f5f5f5;
+}
+
+.image-wrapper .product-image,
+.productos-img-wrapper .productos-img,
+.product-image,
+.productos-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Modal preview image limit */
+.product-preview-img {
+  max-width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+}
+
+/* === LISTA DE CATEGORÍAS: usar colores globales (amarillo claro) en vez del azul por defecto === */
+.list-group .list-group-item {
+  border: 1px solid rgba(0,0,0,0.04);
+  border-radius: 8px;
+  color: var(--text);
+  background: transparent;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.list-group .list-group-item-action:hover {
+  background: rgba(231, 182, 43, 0.06); /* amarillo muy sutil */
+  color: var(--text);
+}
+
+.list-group .list-group-item.active,
+.list-group .list-group-item-action.active {
+  background: linear-gradient(135deg, rgba(231, 182, 43, 0.12), rgba(167, 109, 21, 0.06));
+  color: #111 !important;
+  border-color: rgba(231, 182, 43, 0.18);
+  box-shadow: 0 6px 14px rgba(231, 182, 43, 0.08);
+  font-weight: 700;
+}
+
+.list-group .list-group-item:focus {
+  outline: none;
+  box-shadow: 0 3px 10px rgba(231, 182, 43, 0.06);
+}
+
+/* === Dropdown de categorías personalizado para usar colores del tema === */
+.category-dropdown .dropdown-toggle {
+  background: linear-gradient(135deg, rgba(231,182,43,0.12), rgba(167,109,21,0.04));
+  color: var(--text);
+  border: 1px solid rgba(231,182,43,0.12);
+  box-shadow: 0 4px 10px rgba(231,182,43,0.06);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 700;
+}
+
+.category-dropdown .dropdown-toggle:focus,
+.category-dropdown .dropdown-toggle:active {
+  outline: none;
+  box-shadow: 0 6px 16px rgba(231,182,43,0.08);
+}
+
+.category-dropdown .dropdown-menu {
+  border-radius: 8px;
+  border: 1px solid rgba(231,182,43,0.08);
+  box-shadow: 0 10px 30px rgba(46,57,72,0.08);
+}
+
+.category-dropdown .dropdown-item.active {
+  background: rgba(231,182,43,0.10);
+  color: #111;
+  font-weight: 700;
+}
+
+.category-dropdown .dropdown-item:hover {
+  background: rgba(231,182,43,0.06);
+}
+
+/* === PREVIEW FLOTCARD: backdrop y card centrada === */
+.preview-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 24px;
+}
+
+.preview-card {
+  position: relative;
+  /* reducir ancho máximo para evitar mucho espacio a la derecha */
+  width: min(860px, 96%);
+  max-height: calc(100vh - 120px);
+  overflow: auto;
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.32);
+  animation: popIn .16s ease-out;
+}
+
+@keyframes popIn {
+  from { transform: translateY(10px) scale(0.99); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Ajustes internos para la imagen y columna en vista previa */
+.preview-card .row { gap: 8px; }
+.preview-card img { border-radius: 8px; }
+
+@media (max-width: 576px) {
+  .preview-card { padding: 12px; }
+  .preview-card .col-md-5, .preview-card .col-md-7 { flex: 0 0 100%; max-width: 100%; }
+}
+
+/* Close button */
+.preview-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.preview-close-btn:hover {
+  background: rgba(0,0,0,0.06);
+}
+
+/* Make preview columns a clean two-column flat card on wider screens */
+.preview-card .col-md-5 { flex: 0 0 45%; max-width: 45%; }
+.preview-card .col-md-7 { flex: 0 0 55%; max-width: 55%; }
+
+@media (max-width: 768px) {
+  .preview-card .col-md-5 { flex: 0 0 100%; max-width: 100%; }
+  .preview-card .col-md-7 { flex: 0 0 100%; max-width: 100%; }
+}
+
+/* Ajustar botón Añadir al carrito dentro de la preview para no ocupar todo el ancho */
+.preview-card .btn.w-100 {
+  max-width: 220px;
+  margin-left: auto; /* alinea a la derecha dentro de su contenedor */
+  display: block;
+  padding: 8px 14px;
+  font-size: 0.95rem;
+}
+
+/* Hacer que el contenido derecho tenga algo menos de padding para reducir espacio en blanco */
+.preview-card .col-md-7 { padding-left: 14px; }
+
+@media (max-width: 576px) {
+  .preview-card { width: calc(100% - 24px); }
+  .preview-card .btn.w-100 { max-width: 100%; margin-left: 0; }
+}

@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/NavBar"; // CompoNENte Navbar
+import ProtectedRoute from "./components/ProtectedRoute";
 import Inicio from "./pages/inicio";
 import Contacto from "./pages/contacto";
 import Productos from "./pages/productos";
@@ -8,6 +9,8 @@ import Login from "./pages/Login";
 import Registro from "./pages/registro";
 import Pago from "./pages/pago";
 import Comprobante from "./pages/comprobante";
+import Inventario from "./pages/Inventario";
+
 
 import "./App.css";
 
@@ -35,6 +38,14 @@ function App() {
           <Route path="/registro" element={<Registro />} />
           <Route path="/comprobante" element={<Comprobante />} />
           <Route path="/pago" element={<Pago />} />
+          <Route
+            path="/inventario"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN", "VENDEDOR"]}>
+                <Inventario />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
 

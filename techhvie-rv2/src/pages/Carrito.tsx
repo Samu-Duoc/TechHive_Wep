@@ -1,138 +1,195 @@
-import React from "react";
-import { Offcanvas } from "react-bootstrap";
-import "../styles/carrito.css";
-import { useCarrito } from "../context/CarritoContext";
-import { useNavigate } from 'react-router-dom';
+import React, {createContext,useContext,useEffect,useState} from "react";
+import axios from "axios";
 
-const Carrito: React.FC<{ visible: boolean; onClose: () => void }> = ({
-  visible,
-  onClose,
+
+//Conexción con ms carrito
+const CARRITO_API = "http://localhost:8083/carrito";
+export interface ProductoCarrito {
+  id: number;       // ID local del front
+  titulo: string;
+  descripcion: string;
+  imagen: string;
+  categoria: string;
+  tags: string[];
+  precio: number;
+  cantidad: number;
+  sku?: string;     // EL SKU viaja como productoId real al backend
+}
+
+interface CarritoContextType {
+  carrito: ProductoCarrito[];
+  agregarAlCarrito: (producto: ProductoCarrito) => void;
+  eliminarDelCarrito: (id: number) => void;
+  vaciarCarrito: () => void;
+  actualizarCantidad: (id: number, nuevaCantidad: number) => void;
+}
+
+interface UsuarioLS {
+  id: number;
+  nombre: string;
+  email: string;
+  rol: "ADMIN" | "VENDEDOR" | "CLIENTE";
+}
+
+
+// HELPER — OBTENER USUARIO LOGUEADO
+const obtenerUsuarioActual = (): UsuarioLS | null => {
+  try {
+    const raw = localStorage.getItem("usuario");
+    return raw ? (JSON.parse(raw) as UsuarioLS) : null;
+  } catch {
+    return null;
+  }
+};
+
+// CONTEXTO DEL CARRITO
+const CarritoContext = createContext<CarritoContextType | undefined>(undefined);
+
+export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
 }) => {
-  const { carrito, eliminarDelCarrito, vaciarCarrito, actualizarCantidad } =
-    useCarrito();
-  const navigate = useNavigate();
-
-  const handleCheckout = () => {
-    // generar id simple y guardar el pedido como comprobante (respaldo en localStorage)
-    const id = String(Date.now());
-    const items = carrito.map((p) => ({
-      id: p.id,
-      titulo: p.titulo,
-      cantidad: p.cantidad || 1,
-      precio: p.precio,
-    }));
-    const total = carrito.reduce((acc, producto) => {
-      const precioNum = typeof producto.precio === "number"
-        ? producto.precio
-        : parseFloat(String(producto.precio).replace(/[^0-9.-]+/g, "")) || 0;
-      return acc + precioNum * (producto.cantidad || 1);
-    }, 0);
-
-    const order = { id, items, total };
-    try {
-      localStorage.setItem('ultimoComprobante', JSON.stringify(order));
-    } catch (e) {
-      // si falla el guardado, no bloquear la navegación
-      console.warn('No se pudo guardar comprobante en localStorage', e);
-    }
-
-    // navegar a la página de comprobante pasando el pedido como state
-    navigate('/comprobante', { state: { order } });
-    // opcional: cerrar el offcanvas llamando onClose
-    onClose();
-  };
+  const [carrito, setCarrito] = useState<ProductoCarrito[]>([]);
+  const [carritoId, setCarritoId] = useState<number | null>(null);
 
   
+  // Cargar desde localStorage
+  useEffect(() => {
+    const data = localStorage.getItem("carritoTechHive");
+    const id = localStorage.getItem("carritoTechHiveId");
 
-  // Calcular total robusto: convertir precio a número si viene como string (p. ej. "$1.000")
-  const total = carrito.reduce((acc, producto) => {
-    const precioNum = typeof producto.precio === "number"
-      ? producto.precio
-      : parseFloat(String(producto.precio).replace(/[^0-9.-]+/g, "")) || 0;
-    return acc + precioNum * (producto.cantidad || 1);
-  }, 0);
+    if (data) {
+      try {
+        setCarrito(JSON.parse(data));
+      } catch {
+        setCarrito([]);
+      }
+    }
+
+    if (id) {
+      const parsed = Number(id);
+      if (!Number.isNaN(parsed)) setCarritoId(parsed);
+    }
+  }, []);
+
+  // Guardar al cambiar
+  useEffect(() => {
+    localStorage.setItem("carritoTechHive", JSON.stringify(carrito));
+  }, [carrito]);
+
+  useEffect(() => {
+    if (carritoId !== null) {
+      localStorage.setItem("carritoTechHiveId", String(carritoId));
+    }
+  }, [carritoId]);
+
+  //Asegurar carrito en el backend
+  const asegurarCarritoEnBackend = async (
+    usuarioId: number
+  ): Promise<number | null> => {
+    try {
+      // Si ya existe un ID en memoria → reutilizar
+      if (carritoId !== null) return carritoId;
+
+      // Intentar obtener carrito existente por usuario
+      try {
+        const resp = await axios.get(`${CARRITO_API}/usuario/${usuarioId}`);
+        if (resp.data?.id) {
+          setCarritoId(resp.data.id);
+          return resp.data.id;
+        }
+      } catch {
+        // 404, crear nuevo
+      }
+
+      // Crear carrito
+      const nuevo = await axios.post(CARRITO_API, { usuarioId });
+      if (nuevo.data?.id) {
+        setCarritoId(nuevo.data.id);
+        return nuevo.data.id;
+      }
+      return null;
+    } catch (e) {
+      console.error("Error creando/obteniendo carrito:", e);
+      return null;
+    }
+  };
+
+  //Sincronizar ítem al backend
+  const syncAgregarItemBackend = async (producto: ProductoCarrito) => {
+    const usuario = obtenerUsuarioActual();
+    if (!usuario) return; // sin login → modo solo front
+
+    const id = await asegurarCarritoEnBackend(usuario.id);
+    if (!id) return;
+
+    try {
+      const productoId = producto.sku ?? String(producto.id);
+      const subtotal = producto.precio * producto.cantidad;
+
+      await axios.post(`${CARRITO_API}/${id}/items`, {
+        productoId,
+        cantidad: producto.cantidad,
+        subtotal,
+      });
+    } catch (error) {
+      console.error("Error al agregar ítem al backend:", error);
+    }
+  };
+
+
+  //ACCIONES DEL CARRITO
+
+  const agregarAlCarrito = (producto: ProductoCarrito) => {
+    setCarrito((prev) => {
+      const existe = prev.find((p) => p.id === producto.id);
+      if (existe) {
+        return prev.map((p) =>
+          p.id === producto.id
+            ? { ...p, cantidad: p.cantidad + producto.cantidad }
+            : p
+        );
+      }
+      return [...prev, producto];
+    });
+
+    // sincronizar sin bloquear la UI
+    void syncAgregarItemBackend(producto);
+  };
+
+  const eliminarDelCarrito = (id: number) => {
+    setCarrito((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const vaciarCarrito = () => {
+    setCarrito([]);
+  };
+
+  const actualizarCantidad = (id: number, nuevaCantidad: number) => {
+    setCarrito((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, cantidad: nuevaCantidad } : p
+      )
+    );
+  };
 
   return (
-    <Offcanvas
-      show={visible}
-      onHide={onClose}
-      placement="end"
-      backdrop
-      keyboard
-      className="tech-offcanvas carrito-panel"
+    <CarritoContext.Provider
+      value={{
+        carrito,
+        agregarAlCarrito,
+        eliminarDelCarrito,
+        vaciarCarrito,
+        actualizarCantidad,
+      }}
     >
-      <Offcanvas.Header closeButton className="cart-header">
-        <Offcanvas.Title className="cart-title">🛒 Tu Carrito</Offcanvas.Title>
-      </Offcanvas.Header>
-
-      <Offcanvas.Body className="cart-body">
-        {carrito.length === 0 ? (
-          <p className="empty-cart">Tu carrito está vacío 😢</p>
-        ) : (
-          <>
-            {carrito.map((producto) => (
-              <div
-                key={producto.id}
-                className="d-flex align-items-center mb-3 border-bottom pb-2 cart-item"
-              >
-                <img
-                  src={producto.imagen}
-                  alt={producto.titulo}
-                  className="cart-img"
-                />
-                <div className="flex-grow-1">
-                  <strong>{producto.titulo}</strong>
-                  <p className="mb-1">
-                    ${(() => {
-                      const precioNum = typeof producto.precio === "number"
-                        ? producto.precio
-                        : parseFloat(String(producto.precio).replace(/[^0-9.-]+/g, "")) || 0;
-                      return precioNum.toLocaleString("es-CL");
-                    })()}
-                  </p>
-                  <div className="d-flex align-items-center">
-                    <button
-                      className="btn btn-sm btn-outline-secondary me-1"
-                      onClick={() =>
-                        actualizarCantidad(producto.id, producto.cantidad - 1)
-                      }
-                    >
-                      -
-                    </button>
-                    <span>{producto.cantidad}</span>
-                    <button
-                      className="btn btn-sm btn-outline-secondary ms-1"
-                      onClick={() =>
-                        actualizarCantidad(producto.id, producto.cantidad + 1)
-                      }
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-                <button
-                  className="btn btn-sm btn-danger ms-2 delete-btn"
-                  onClick={() => eliminarDelCarrito(producto.id)}
-                >
-                  🗑
-                </button>
-              </div>
-            ))}
-
-            <div className="text-center mt-3">
-              <h5 className="mb-3">
-                Total: ${total.toLocaleString("es-CL")}
-              </h5>
-              <button className="btn btn-warning me-2" onClick={vaciarCarrito}>
-                Vaciar Carrito
-              </button>
-              <button className="btn btn-success" onClick={handleCheckout}>Proceder al Pago</button>
-            </div>
-          </>
-        )}
-      </Offcanvas.Body>
-    </Offcanvas>
+      {children}
+    </CarritoContext.Provider>
   );
 };
 
-export default Carrito;
+export const useCarrito = (): CarritoContextType => {
+  const context = useContext(CarritoContext);
+  if (!context)
+    throw new Error("useCarrito debe usarse dentro de un CarritoProvider");
+  return context;
+};
