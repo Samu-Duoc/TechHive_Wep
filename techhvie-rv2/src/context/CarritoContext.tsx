@@ -3,7 +3,6 @@ import carritoService from "../services/carritoService";
 import type { AddItemPayload } from "../services/carritoService";
 import { useAuth } from "../context/AuthContext";
 
-// --- Tipos ---
 export interface ProductoCarrito {
   id: number; // id local del frontend (no necesariamente el productoId del backend)
   titulo: string;
@@ -66,12 +65,10 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [carritoId]);
 
   // Asegurar carrito en backend: devuelve carritoId o null
+  // Asegurar carrito en backend: devuelve carritoId o null
   const asegurarCarritoEnBackend = async (usuarioId: number): Promise<number | null> => {
     try {
-      // Si ya tenemos id, reutilizar
-      if (carritoId !== null) return carritoId;
-
-      // Intentar obtener carrito por usuario
+      // 1) Intentar SIEMPRE obtener carrito por usuario
       try {
         const resp = await carritoService.getCartByUser(usuarioId);
         if (resp?.id) {
@@ -79,14 +76,17 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
           return resp.id;
         }
       } catch (err) {
-        // si no existe, fallamos al crear más abajo
+        // Si el backend responde error (no tiene carrito, 404 o 500), seguimos y lo creamos
+        console.warn("No se encontró carrito para el usuario, se creará uno nuevo.", err);
       }
 
+      // 2) Crear carrito si no existe
       const crear = await carritoService.createCart(usuarioId);
       if (crear?.id) {
         setCarritoId(crear.id);
         return crear.id;
       }
+
       console.error("Respuesta inesperada al crear carrito:", crear);
       return null;
     } catch (e) {
@@ -94,6 +94,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       return null;
     }
   };
+
 
   // Sincronizar agregado item al backend
   const syncAgregarItemBackend = async (producto: ProductoCarrito) => {
@@ -113,9 +114,37 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const productoId = producto.sku ? String(producto.sku) : String(producto.id);
       const subtotal = (producto.precio * producto.cantidad).toString(); // enviar como string para BigDecimal
       const payload: AddItemPayload = { productoId, cantidad: producto.cantidad, subtotal };
+      console.debug("addItem -> carritoId=", id, "payload=", payload);
       await carritoService.addItem(id, payload);
     } catch (err) {
       console.error("Error al agregar ítem al backend:", err);
+      const status = (err as any)?.response?.status;
+      const data = (err as any)?.response?.data;
+      console.debug("addItem error status=", status, "responseData=", data);
+
+      // Si el backend dice que el carrito no existe, intentamos recrearlo y reintentar una vez
+      const msg = (data && (data.message || data.error)) || (err as any)?.message || '';
+      if (status === 404 || String(msg).toLowerCase().includes("carrito no encontrado")) {
+        console.info("addItem: carrito no encontrado en backend, intentando crear y reintentar...");
+        try {
+          const nuevoId = await asegurarCarritoEnBackend(usuario.id);
+          if (nuevoId) {
+            setCarritoId(nuevoId);
+            const productoId2 = producto.sku ? String(producto.sku) : String(producto.id);
+            const subtotal2 = (producto.precio * producto.cantidad).toString();
+            const payload2: AddItemPayload = { productoId: productoId2, cantidad: producto.cantidad, subtotal: subtotal2 };
+            console.debug("Reintentando addItem -> carritoId=", nuevoId, "payload=", payload2);
+            try {
+              await carritoService.addItem(nuevoId, payload2);
+              console.info("Reintento addItem exitoso");
+            } catch (err2) {
+              console.error("Reintento de addItem falló:", err2);
+            }
+          }
+        } catch (re) {
+          console.error("Error creando carrito durante reintento:", re);
+        }
+      }
     }
   };
 
