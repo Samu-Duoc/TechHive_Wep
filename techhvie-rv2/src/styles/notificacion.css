@@ -6,9 +6,9 @@
     color: white;
     font-family: 'Nunito Sans', sans-serif;
     font-weight: 600;
-    padding: 14px 22px;
-    border-radius: 14px;
-    box-shadow: 0 5px 20px rgba(231, 182, 43, 0.35);
+    padding: 12px 14px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     z-index: 2000;
     opacity: 0;
     transform: translateY(15px);
@@ -39,4 +39,55 @@
     opacity: 0;
     transform: translateY(15px);
   }
+}
+
+.notificacion-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notificacion-icon {
+    font-size: 20px;
+}
+
+.notificacion-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.notificacion-message {
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.notificacion-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.notificacion-action {
+    background: rgba(255,255,255,0.12);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.notificacion-action:hover {
+    background: rgba(255,255,255,0.18);
+}
+
+.notificacion-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 18px;
+    margin-left: 6px;
+    cursor: pointer;
+}
+
+@media (max-width: 600px) {
+    .notificacion { right: 14px; left: 14px; bottom: 20px; }
 }

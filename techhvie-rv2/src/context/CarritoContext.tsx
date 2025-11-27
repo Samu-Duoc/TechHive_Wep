@@ -3,6 +3,7 @@ import carritoService from "../services/carritoService";
 import type { AddItemPayload } from "../services/carritoService";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import Notificacion from "../components/Notificacion";
 
 export interface ProductoCarrito {
   id: number; // id local del frontend (no necesariamente el productoId del backend)
@@ -36,6 +37,11 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const id = localStorage.getItem("carritoTechHiveId");
     return id ? Number(id) : null;
   });
+  const [notif, setNotif] = useState<{
+    mensaje: string;
+    actionLabel?: string;
+    onAction?: () => void;
+  } | null>(null);
   const auth = (() => {
     try {
       return useAuth();
@@ -166,13 +172,14 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // ACCIONES que expone el contexto (cada una intenta sincronizar con backend)
   const agregarAlCarrito = async (producto: ProductoCarrito) => {
-    // Si no está logueado, bloquear la acción y pedir que inicie sesión
+    // Si no está logueado, bloquear la acción y mostrar notificación con opción a login
     const usuario = auth?.usuario ?? null;
     if (!usuario) {
-      const goLogin = window.confirm(
-        "Necesitas iniciar sesión o registrarte para agregar productos al carrito. ¿Ir a iniciar sesión?"
-      );
-      if (goLogin) navigate("/login");
+      setNotif({
+        mensaje: "Necesitas iniciar sesión o registrarte para comprar.",
+        actionLabel: "Iniciar sesión",
+        onAction: () => navigate("/login"),
+      });
       return;
     }
 
@@ -229,6 +236,14 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }}
     >
       {children}
+      {notif && (
+        <Notificacion
+          mensaje={notif.mensaje}
+          actionLabel={notif.actionLabel}
+          onAction={notif.onAction}
+          onClose={() => setNotif(null)}
+        />
+      )}
     </CarritoContext.Provider>
   );
 };
