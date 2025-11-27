@@ -1,0 +1,31 @@
+.mensajes-page { color: #222; }
+
+.mensajes-header h2 { font-size: 24px; }
+
+.mensajes-filtros .btn { min-width: 86px; }
+
+.mensaje-card {
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    padding: 14px;
+    background: white;
+}
+
+.mensaje-meta { align-items: center; }
+
+.estado-badge {
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.estado-badge.nuevo { background: #ffefdb; color: #926018; }
+.estado-badge.respondido { background: #e8f7ef; color: #1e7e34; }
+.estado-badge.archivado { background: #f1f3f5; color: #495057; }
+
+.mensaje-body p { color: #333; }
+
+@media (max-width: 768px) {
+    .mensajes-header { flex-direction: column; gap: 8px; }
+}

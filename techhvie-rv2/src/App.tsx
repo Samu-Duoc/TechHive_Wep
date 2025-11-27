@@ -16,6 +16,7 @@ import Perfil from "./pages/Perfil";
 import Ordenes from "./pages/Ordenes";
 import OrdenesVendedor from "./pages/Vendedor/OrdenesVendedor";
 import AdminDashboard from "./pages/Admin/AdminDashboard"; 
+import Mensajes from "./pages/Mensajes";
 
 import "./App.css";
 
@@ -91,6 +92,15 @@ function App() {
             }
           />
 
+          <Route
+            path="/vendedor/mensajes"
+            element={
+              <ProtectedRoute allowedRoles={["VENDEDOR", "ADMIN"]}>
+                <Mensajes />
+              </ProtectedRoute>
+            }
+          />
+
           {/* ============================
               3) SOLO ADMIN
              ============================ */}
@@ -99,6 +109,15 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["ADMIN"]}>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/mensajes"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <Mensajes />
               </ProtectedRoute>
             }
           />
