@@ -1,6 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Pago: React.FC = () => {
+    const { usuario } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!usuario) {
+            const goLogin = window.confirm("Para pagar necesitas iniciar sesión. ¿Ir a iniciar sesión?");
+            if (goLogin) navigate('/login');
+            else navigate('/');
+        }
+    }, [usuario]);
     return (
         <div className="container mt-5 pt-5">
             <div className="row justify-content-center">

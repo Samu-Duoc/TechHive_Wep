@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import carritoService from "../services/carritoService";
 import type { AddItemPayload } from "../services/carritoService";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export interface ProductoCarrito {
   id: number; // id local del frontend (no necesariamente el productoId del backend)
@@ -42,6 +43,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       return null as any;
     }
   })();
+  const navigate = useNavigate();
 
   // Inicializar desde localStorage
   useEffect(() => {
@@ -164,6 +166,16 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // ACCIONES que expone el contexto (cada una intenta sincronizar con backend)
   const agregarAlCarrito = async (producto: ProductoCarrito) => {
+    // Si no está logueado, bloquear la acción y pedir que inicie sesión
+    const usuario = auth?.usuario ?? null;
+    if (!usuario) {
+      const goLogin = window.confirm(
+        "Necesitas iniciar sesión o registrarte para agregar productos al carrito. ¿Ir a iniciar sesión?"
+      );
+      if (goLogin) navigate("/login");
+      return;
+    }
+
     // Actualización optimista local
     setCarrito((prev) => {
       const existe = prev.find((p) => (p.sku ? p.sku === producto.sku : p.id === producto.id));
