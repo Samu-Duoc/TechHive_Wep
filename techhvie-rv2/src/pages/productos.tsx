@@ -343,13 +343,6 @@ interface Producto {
                     >
                     🛒 Añadir al carrito
                     </button>
-
-                    <button
-                    className="btn btn-link mt-2"
-                    onClick={() => setProductoSeleccionado(null)}
-                    >
-                    Cerrar
-                    </button>
                 </div>
                 </div>
             </div>
