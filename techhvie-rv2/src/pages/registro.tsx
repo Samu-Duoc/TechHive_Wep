@@ -81,9 +81,14 @@ const RegisterIn: React.FC = () => {
       todoOk = false;
     } else newErrors.email = "";
 
-    // Password (mínimo 8 para calzar con el backend)
-    if (formData.password.length > 8) {
-      newErrors.password = "La contraseña debe tener 8 caracteres y un caracter especial como + , -, *, /";
+    // Password: debe tener entre 6 y 8 caracteres, al menos una mayúscula y + o *
+    if (
+      formData.password.length < 6 ||
+      formData.password.length > 8 ||
+      !/^(?=.*[A-Z])(?=.*[+*]).{6,8}$/.test(formData.password)
+    ) {
+      newErrors.password =
+        "La contraseña debe tener entre 6 y 8 caracteres y contener al menos una mayúscula y un carácter especial (+ o *)";
       todoOk = false;
     } else newErrors.password = "";
 
@@ -124,31 +129,45 @@ const RegisterIn: React.FC = () => {
     if (!validar()) return;
 
     try {
+      const payload = {
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        rut: formData.rut,
+        email: formData.email,
+        password: formData.password,
+        telefono: formData.telefono,
+        direccion: formData.direccion,
+      };
+
+      console.debug("Registro payload:", payload);
+
       const response = await fetch("http://localhost:8081/auth/registro", {
         // 🔧 cambia puerto si tu ms_auth_usuarios usa otro
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          nombre: formData.nombre,
-          apellido: formData.apellido,
-          rut: formData.rut,
-          email: formData.email,
-          password: formData.password,
-          telefono: formData.telefono,
-          direccion: formData.direccion,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        const text = await response.text();
+        let errorText = "";
+        try {
+          const errJson = await response.json();
+          errorText = errJson.message || errJson.error || JSON.stringify(errJson);
+        } catch (err) {
+          errorText = await response.text();
+        }
+
+        console.error("Registro falló:", response.status, errorText);
+
         setErrors((prev) => ({
           ...prev,
           backend:
-            text ||
+            errorText ||
             "Error al registrar usuario. Verifica los datos e intenta nuevamente.",
         }));
+
         return;
       }
 
