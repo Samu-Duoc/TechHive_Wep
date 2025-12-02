@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../styles/Mensajes.css";
 import ContactoBuscar from "./ContactoBuscar";
@@ -32,6 +32,7 @@ interface Mensaje {
     const [cargando, setCargando] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { usuario } = useAuth();
+    const [searchId, setSearchId] = useState<string>("");
 
     const cargarMensajes = async () => {
         setCargando(true);
@@ -60,10 +61,7 @@ interface Mensaje {
         void cargarMensajes();
     }, []);
 
-    const filtrados = useMemo(() => {
-        if (filtro === "ALL") return mensajes;
-        return mensajes.filter((m) => m.estado === filtro);
-    }, [mensajes, filtro]);
+    
 
     return (
         <div className="mensajes-page p-4">
@@ -79,28 +77,39 @@ interface Mensaje {
                         <small className="text-muted">Ver y gestionar mensajes de contacto</small>
                     </div>
 
-                    <div className="d-flex align-items-center gap-2 mb-3 mensajes-filtros">
-                        <button className={`btn btn-sm ${filtro === "ALL" ? "btn-primary" : "btn-outline-secondary"}`} onClick={() => setFiltro("ALL")}>Todos</button>
-                        <button className={`btn btn-sm ${filtro === "NUEVO" ? "btn-primary" : "btn-outline-secondary"}`} onClick={() => setFiltro("NUEVO")}>Nuevos</button>
-                    </div>
+                    <div className="d-flex flex-column align-items-center mb-3">
+                        <div className="d-flex align-items-center justify-content-center gap-3" style={{width: '100%'}}>
+                            <div className="mensajes-filtros d-flex align-items-center gap-2">
+                                <button className={`btn btn-sm ${filtro === "ALL" ? "btn-primary" : "btn-outline-secondary"}`} onClick={() => setFiltro("ALL")}>Todos</button>
+                                <button className={`btn btn-sm ${filtro === "NUEVO" ? "btn-primary" : "btn-outline-secondary"}`} onClick={() => setFiltro("NUEVO")}>Nuevos</button>
+                            </div>
 
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                        <div style={{ minWidth: 320 }}>
-                            <h5 className="mb-1">Buscar por ID</h5>
-                            <ContactoBuscar />
-                        </div>
-                        <div>
-                            <button className="btn btn-sm btn-outline-primary" onClick={cargarMensajes} disabled={cargando}>{cargando ? 'Cargando...' : 'Actualizar'}</button>
+                            <div style={{minWidth: 320}}>
+                                <ContactoBuscar onSearch={(id) => setSearchId(id)} />
+                            </div>
+
+                            <div>
+                                <button className="btn btn-sm btn-outline-primary" onClick={() => { setSearchId(""); void cargarMensajes(); }} disabled={cargando}>{cargando ? 'Cargando...' : 'Actualizar'}</button>
+                            </div>
                         </div>
                     </div>
 
                     {error && <div className="alert alert-danger">{error}</div>}
 
-                    {filtrados.length === 0 && !cargando ? (
-                        <div className="text-muted">No hay mensajes para mostrar.</div>
-                    ) : (
-                        <div className="mensajes-list">
-                            {filtrados.map((m) => (
+                    {(() => {
+                        const shown = mensajes.filter((m) => {
+                            const matchId = searchId ? String(m.id) === String(searchId) : true;
+                            const matchFiltro = filtro === 'ALL' ? true : m.estado === filtro;
+                            return matchId && matchFiltro;
+                        });
+
+                        if (shown.length === 0 && !cargando) {
+                            return <div className="text-muted">No hay mensajes para mostrar.</div>;
+                        }
+
+                        return (
+                            <div className="mensajes-list">
+                                {shown.map((m) => (
                                 <div key={m.id} className="mensaje-card mb-3">
                                     <div className="mensaje-meta d-flex justify-content-between">
                                         <div className="d-flex gap-3 align-items-center">
@@ -122,9 +131,10 @@ interface Mensaje {
                                         </div>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    )}
+                                ))}
+                            </div>
+                        );
+                    })()}
                 </div>
             </main>
         </div>
