@@ -74,10 +74,10 @@ const Comprobante: React.FC = () => {
                     <button className="btn btn-primary" onClick={() => window.print()}>Imprimir comprobante</button>
                             <button
                                 className="btn btn-success"
-                                onClick={() => {
+                                onClick={async () => {
                                     // Finalizar compra: vaciar carrito, borrar comprobante y volver al inicio
                                     try {
-                                        vaciarCarrito();
+                                        await vaciarCarrito();
                                     } catch (e) {
                                         console.warn('No se pudo vaciar carrito vía contexto', e);
                                     }

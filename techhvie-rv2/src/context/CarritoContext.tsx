@@ -24,6 +24,7 @@ interface CarritoContextType {
   vaciarCarrito: () => Promise<void>;
   actualizarCantidad: (id: number, nuevaCantidad: number) => Promise<void>;
   carritoId: number | null;
+  finalizarCompra: () => Promise<void>;
 }
 
 // NOTE: preferir usar `useAuth()` para obtener el usuario reactivo en componentes.
@@ -122,8 +123,10 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const productoId = producto.sku ? String(producto.sku) : String(producto.id);
       const subtotal = (producto.precio * producto.cantidad).toString(); // enviar como string para BigDecimal
       const payload: AddItemPayload = { productoId, cantidad: producto.cantidad, subtotal };
-      console.debug("addItem -> carritoId=", id, "payload=", payload);
-      await carritoService.addItem(id, payload);
+      console.debug("syncAgregarItemBackend -> carritoId=", id, "payload=", payload);
+      // servicio transformará a producto_id y añadirá carrito_id
+      const respData = await carritoService.addItem(id, payload);
+      console.info('syncAgregarItemBackend: detalle agregado en backend ->', respData);
     } catch (err) {
       console.error("Error al agregar ítem al backend:", err);
       const status = (err as any)?.response?.status;
@@ -145,6 +148,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
             try {
               await carritoService.addItem(nuevoId, payload2);
               console.info("Reintento addItem exitoso");
+                console.info('syncAgregarItemBackend: reintento exitoso, respuesta registrada.');
             } catch (err2) {
               console.error("Reintento de addItem falló:", err2);
             }
@@ -214,6 +218,28 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
     // if (carritoId) await api.delete(`/carrito/${carritoId}/items`);
   };
 
+  // Finalizar compra: limpiar carrito local y el id del carrito para forzar creación de uno nuevo
+  const finalizarCompra = async () => {
+    // Intentar limpiar items en backend si existe carritoId (no bloquear si falla)
+    if (carritoId !== null) {
+      try {
+        await carritoService.clearCart(carritoId);
+      } catch (e) {
+        console.warn('finalizarCompra: no se pudo vaciar carrito en backend:', e);
+      }
+    }
+
+    // Limpiar estado y localStorage para forzar nuevo carrito en la próxima compra
+    setCarrito([]);
+    setCarritoId(null);
+    try {
+      localStorage.removeItem('carritoTechHive');
+      localStorage.removeItem('carritoTechHiveId');
+    } catch (e) {
+      console.warn('finalizarCompra: error limpiando localStorage', e);
+    }
+  };
+
   const actualizarCantidad = async (id: number, nuevaCantidad: number) => {
     setCarrito((prev) =>
       prev.map((p) => (p.id === id ? { ...p, cantidad: Math.max(1, nuevaCantidad) } : p))
@@ -233,6 +259,7 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
         vaciarCarrito,
         actualizarCantidad,
         carritoId,
+        finalizarCompra,
       }}
     >
       {children}
