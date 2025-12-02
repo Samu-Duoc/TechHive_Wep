@@ -20,9 +20,27 @@
     text-transform: capitalize;
 }
 
-.estado-badge.nuevo { background: #ffefdb; color: #926018; }
-.estado-badge.respondido { background: #e8f7ef; color: #1e7e34; }
-.estado-badge.archivado { background: #f1f3f5; color: #495057; }
+.estado-badge.nuevo { background: var(--badge-nuevo-bg); color: var(--badge-nuevo-color); }
+.estado-badge.respondido { background: var(--badge-respondido-bg); color: var(--badge-respondido-color); }
+.estado-badge.archivado { background: var(--badge-archivado-bg); color: var(--badge-archivado-color); }
+
+/* Barra de búsqueda compacta (ContactoBuscar inline) */
+.contacto-buscar-inline {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.contacto-buscar-inline .form-control {
+    width: 220px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: none;
+}
+.contacto-buscar-inline .btn {
+    padding: 8px 12px;
+    border-radius: 999px;
+}
 
 .mensaje-body p { color: #333; }
 

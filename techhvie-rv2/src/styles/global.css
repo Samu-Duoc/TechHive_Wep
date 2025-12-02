@@ -26,6 +26,14 @@
   /* Fuentes */
   --font-main: 'Nunito Sans';
   --font-heading: 'Audiowide';
+
+  /* Badges / Mensajes */
+  --badge-nuevo-bg: #ffefdb;
+  --badge-nuevo-color: #926018;
+  --badge-respondido-bg: #e8f7ef;
+  --badge-respondido-color: #1e7e34;
+  --badge-archivado-bg: #f1f3f5;
+  --badge-archivado-color: #495057;
 }
 
 /* Tema de fondo */
