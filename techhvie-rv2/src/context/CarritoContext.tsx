@@ -213,10 +213,19 @@ export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const vaciarCarrito = async () => {
-    setCarrito([]);
-    // Opcional: eliminar carrito en backend o vaciar items si existe endpoint
-    // if (carritoId) await api.delete(`/carrito/${carritoId}/items`);
+    try {
+      if (carritoId != null) {
+        // llama al backend para vaciar detalle_carrito
+        await carritoService.clearCart(carritoId);
+      }
+    } catch (err) {
+      console.error("Error al vaciar carrito en backend:", err);
+    } finally {
+      // limpia también el estado local
+      setCarrito([]);
+    }
   };
+
 
   // Finalizar compra: limpiar carrito local y el id del carrito para forzar creación de uno nuevo
   const finalizarCompra = async () => {
