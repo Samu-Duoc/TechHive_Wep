@@ -113,10 +113,11 @@ const Register: React.FC = () => {
 
       // Usuario registrado exitosamente
       const usuarioRegistrado = await response.json();
-      
+      console.log("Usuario registrado", usuarioRegistrado);
+
       // Iniciar sesión automáticamente
       login(usuarioRegistrado);
-      
+
       // Redirigir al inicio
       navigate("/");
     } catch (error) {

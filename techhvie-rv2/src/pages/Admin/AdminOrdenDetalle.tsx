@@ -55,7 +55,7 @@ const ESTADOS: EstadoPedido[] = [
         try {
         setSaving(true);
         await pedidosService.actualizarEstado(pedidoId, estado); // PATCH existe :contentReference[oaicite:21]{index=21}
-        alert("Estado cambiado");
+        console.log("Estado de pedido actualizado", { pedidoId, estado });
         navigate("/admin/ordenes");
         } finally {
         setSaving(false);
