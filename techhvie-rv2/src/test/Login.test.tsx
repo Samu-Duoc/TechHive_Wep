@@ -1,55 +1,80 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom"; // Siimular rutas
-import Login from "../pages/Login"; // Importamos el componente que vamos a testear
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 
-// Bloque principal de pruebas: todas las pruebas relacionadas con el componente Login
+// Mock the AuthContext
+vi.mock("../context/AuthContext", () => ({
+    useAuth: () => ({
+        login: vi.fn(),
+    }),
+}));
+
+// Mock fetch
+global.fetch = vi.fn();
+
+import Login from "../pages/Login";
+
 describe("Login Component", () => {
-  // PRUEBA 1: Verificar que los campos se muestren correctamente
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
     it("muestra los campos de correo y contraseña", () => {
-    // Renderizamos el componente dentro de un MemoryRouter simulado
-    render(
-        <MemoryRouter>
-            <Login onLoginSuccess={() => {}} />
-        </MemoryRouter>
-    );
-    // Verificamos que los inputs del formulario estén presentes en el DOM simulado
-    expect(screen.getByLabelText(/correo electrónico|email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument();
-    // También comprobamos que el botón 'Ingresar' esté visible
-    expect(screen.getByRole("button", { name: /ingresar/i })).toBeInTheDocument();
+        const { container } = render(
+            <MemoryRouter>
+                <Login />
+            </MemoryRouter>
+        );
+        
+        const emailInput = container.querySelector('input[type="email"]');
+        const passwordInput = container.querySelector('input[type="password"]');
+        
+        expect(emailInput).toBeInTheDocument();
+        expect(passwordInput).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: /iniciar sesión/i })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /ingresar/i })).toBeInTheDocument();
     });
 
-  // PRUEBA 2: Validar comportamiento cuando los campos están vacíos
     it("muestra errores si los campos están vacíos", async () => {
-    render(
-        <MemoryRouter>
-            <Login onLoginSuccess={() => {}} />
-        </MemoryRouter>
-    );
-    // Simulamos que el usuario presiona el botón 'Ingresar' sin escribir nada
-    fireEvent.click(screen.getByRole("button", { name: /ingresar/i }));
+        render(
+            <MemoryRouter>
+                <Login />
+            </MemoryRouter>
+        );
 
-    // Buscar errores de validación
-    expect(await screen.findByText(/el correo es obligatorio/i)).toBeInTheDocument();
-    expect(await screen.findByText(/la contraseña es obligatoria/i)).toBeInTheDocument();
+        const submitBtn = screen.getByRole("button", { name: /ingresar/i });
+        fireEvent.click(submitBtn);
+
+        // HTML5 validation ocurre, verificamos que los inputs existan y tengan 'required'
+        const inputs = screen.getAllByRole("textbox") as HTMLInputElement[];
+        expect(inputs.length).toBeGreaterThan(0);
+        expect(inputs[0].required).toBe(true);
     });
 
-  // PRUEBA 3: Validar credenciales correctas
     it("acepta credenciales correctas", async () => {
-    const onLoginSuccess = vi.fn(); // función simulada
+        (global.fetch as any).mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ token: "test-token", usuario: { id: 1, email: "user@gmail.com" } }),
+        });
 
-    render(
-        <MemoryRouter>
-            <Login onLoginSuccess={onLoginSuccess} />
-        </MemoryRouter>
-    );
+        const { container } = render(
+            <MemoryRouter>
+                <Login />
+            </MemoryRouter>
+        );
 
-    fireEvent.change(screen.getByLabelText(/correo electrónico|email/i), { target: { value: "user@gmail.com" } });
-    fireEvent.change(screen.getByLabelText(/contraseña/i), { target: { value: "1234" } });
-    fireEvent.click(screen.getByRole("button", { name: /ingresar/i }));
+        const emailInput = container.querySelector('input[type="email"]') as HTMLInputElement;
+        const passwordInput = container.querySelector('input[type="password"]') as HTMLInputElement;
+        
+        fireEvent.change(emailInput, { target: { value: "user@gmail.com" } });
+        fireEvent.change(passwordInput, { target: { value: "password123" } });
+        fireEvent.click(screen.getByRole("button", { name: /ingresar/i }));
 
-    // onLoginSuccess debe haberse llamado
-    expect(onLoginSuccess).toHaveBeenCalled();
+        await waitFor(() => {
+            expect(global.fetch).toHaveBeenCalledWith(
+                expect.stringContaining("/login"),
+                expect.any(Object)
+            );
+        });
     });
 });
