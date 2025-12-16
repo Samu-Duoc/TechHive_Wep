@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import pedidosService from "../../services/pedidosService";
 import type { Pedido } from "../../services/pedidosService";
+import MenuPerfil from "../MenuPerfil";
+import "../../styles/MenuPerfil.css";
 
 const AdminOrdenes: React.FC = () => {
     const { usuario } = useAuth();
@@ -43,37 +45,42 @@ const AdminOrdenes: React.FC = () => {
 
     return (
         <div className="container mt-5 pt-5" style={{ maxWidth: 1100 }}>
-        <div className="d-flex justify-content-between align-items-center mb-3">
-            <h2 className="m-0">Órdenes (Admin/Vendedor)</h2>
-            <button className="btn btn-outline-primary" onClick={() => void refetch()} disabled={loading}>
-                {loading ? "Actualizando..." : "Actualizar"}
-            </button>
-        </div>
-
-        {loading ? (
-            <div className="alert alert-info">Cargando...</div>
-        ) : (
-            <div className="d-flex flex-column gap-2">
-            {orders.map((o) => {
-                const id = (o as any).id ?? (o as any).pedidoId;
-                return (
-                <div key={id ?? (o as any).id ?? (o as any).pedidoId} className="card">
-                <div className="card-body d-flex justify-content-between align-items-center">
-                    <div>
-                    <div className="fw-bold">#{id ?? "(sin id)"}</div>
-                    <div className="text-muted" style={{ fontSize: 13 }}>
-                        Usuario: {o.usuarioId} · Estado: <b>{o.estado}</b> · Total: <b>${Number(o.total).toFixed(0)}</b>
-                    </div>
-                    </div>
-                    <button className="btn btn-primary" disabled={!id} onClick={() => id && navigate(`/admin/ordenes/${id}`)}>
-                    Ver / Editar
-                    </button>
-                </div>
-                </div>
-                );
-            })}
+        <div className="perfil-layout">
+            <MenuPerfil role={usuario?.rol ?? null} />
+            <div className="perfil-card w-100">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <h2 className="m-0">Órdenes</h2>
+                <button className="btn btn-outline-primary" onClick={() => void refetch()} disabled={loading}>
+                    {loading ? "Actualizando..." : "Actualizar"}
+                </button>
             </div>
-        )}
+
+            {loading ? (
+                <div className="alert alert-info">Cargando...</div>
+            ) : (
+                <div className="d-flex flex-column gap-2">
+                {orders.map((o) => {
+                    const id = (o as any).id ?? (o as any).pedidoId;
+                    return (
+                    <div key={id ?? (o as any).id ?? (o as any).pedidoId} className="card">
+                    <div className="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                        <div className="fw-bold">#{id ?? "(sin id)"}</div>
+                        <div className="text-muted" style={{ fontSize: 13 }}>
+                            Usuario: {o.usuarioId} · Estado: <b>{o.estado}</b> · Total: <b>${Number(o.total).toFixed(0)}</b>
+                        </div>
+                        </div>
+                        <button className="btn btn-primary" disabled={!id} onClick={() => id && navigate(`/admin/ordenes/${id}`)}>
+                        Ver / Editar
+                        </button>
+                    </div>
+                    </div>
+                    );
+                })}
+                </div>
+            )}
+            </div>
+        </div>
         </div>
     );
 };

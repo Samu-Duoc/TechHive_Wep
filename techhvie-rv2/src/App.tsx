@@ -18,7 +18,6 @@ import Perfil from "./pages/Perfil";
 import EditarPerfil from "./pages/EditarPerfil";
 import OrdenesCliente from "./pages/OrdenesCliente";
 import OrdenDetalle from "./pages/OrdenDetalle";
-import OrdenesVendedor from "./pages/Vendedor/OrdenesVendedor";
 import AdminDashboard from "./pages/Admin/AdminDashboard"; 
 import AdminOrdenes from "./pages/Admin/AdminOrdenes";
 import AdminOrdenDetalle from "./pages/Admin/AdminOrdenDetalle";
@@ -119,7 +118,7 @@ function App() {
             path="/vendedor/ordenes"
             element={
               <ProtectedRoute allowedRoles={["VENDEDOR", "ADMIN"]}>
-                <OrdenesVendedor />
+                <AdminOrdenes />
               </ProtectedRoute>
             }
           />

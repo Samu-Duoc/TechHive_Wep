@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import pedidosService from "../../services/pedidosService";
 import type { EstadoPedido, PedidoDetalleDTO } from "../../services/pedidosService";
+import MenuPerfil from "../MenuPerfil";
+import "../../styles/MenuPerfil.css";
 
 const ESTADOS: EstadoPedido[] = [
     "CONFIRMADO",
@@ -94,107 +96,112 @@ const ESTADOS: EstadoPedido[] = [
 
     return (
         <div className="container mt-5 pt-5" style={{ maxWidth: 1100 }}>
-        <button className="btn btn-link mb-2" onClick={() => navigate("/admin/ordenes")}>
-            ← Volver
-        </button>
+        <div className="perfil-layout">
+            <MenuPerfil role={usuario?.rol ?? null} />
+            <div className="perfil-card">
+            <button className="btn btn-link mb-2" onClick={() => navigate("/admin/ordenes")}>
+                ← Volver
+            </button>
 
-        <div className="card mb-3">
-            <div className="card-body d-flex justify-content-between flex-wrap gap-2">
-            <div>
-                <h4 className="mb-1">Orden #{(data as any).pedidoId ?? (data as any).id ?? pedidoId}</h4>
-                <div className="text-muted">
-                Usuario: {data.usuarioId} · Fecha: {data.fecha}
+            <div className="card mb-3">
+                <div className="card-body d-flex justify-content-between flex-wrap gap-2">
+                <div>
+                    <h4 className="mb-1">Orden #{(data as any).pedidoId ?? (data as any).id ?? pedidoId}</h4>
+                    <div className="text-muted">
+                    Usuario: {data.usuarioId} · Fecha: {data.fecha}
+                    </div>
+                </div>
+                <div className="text-end">
+                    <div>Método: <b>{data.metodoPago}</b></div>
+                    <div>Total: <b>${Number(data.total).toFixed(0)}</b></div>
+                    <div>Estado actual: <b>{data.estado}</b></div>
+                </div>
                 </div>
             </div>
-            <div className="text-end">
-                <div>Método: <b>{data.metodoPago}</b></div>
-                <div>Total: <b>${Number(data.total).toFixed(0)}</b></div>
-                <div>Estado actual: <b>{data.estado}</b></div>
-            </div>
-            </div>
-        </div>
 
-        <div className="card mb-3">
-            <div className="card-body">
-            <h5 className="mb-3">Acciones</h5>
+            <div className="card mb-3">
+                <div className="card-body">
+                <h5 className="mb-3">Acciones</h5>
 
-            <div className="row g-2 align-items-end">
-                <div className="col-md-6">
-                <label className="form-label">Cambiar estado</label>
-                <select
-                    className="form-select"
-                    value={estado}
-                    onChange={(e) => setEstado(e.target.value as EstadoPedido)}
-                >
-                    {ESTADOS.map((e) => (
-                    <option key={e} value={e}>
-                        {e}
-                    </option>
-                    ))}
-                </select>
+                <div className="row g-2 align-items-end">
+                    <div className="col-md-6">
+                    <label className="form-label">Cambiar estado</label>
+                    <select
+                        className="form-select"
+                        value={estado}
+                        onChange={(e) => setEstado(e.target.value as EstadoPedido)}
+                    >
+                        {ESTADOS.map((e) => (
+                        <option key={e} value={e}>
+                            {e}
+                        </option>
+                        ))}
+                    </select>
+                    </div>
+
+                    <div className="col-md-6 d-flex gap-2">
+                    <button className="btn btn-outline-secondary w-100" onClick={() => navigate("/admin/ordenes")}>
+                        Cancelar
+                    </button>
+                    <button className="btn btn-primary w-100" disabled={saving} onClick={onConfirm}>
+                        {saving ? "Guardando..." : "Confirmar"}
+                    </button>
+                    </div>
                 </div>
-
-                <div className="col-md-6 d-flex gap-2">
-                <button className="btn btn-outline-secondary w-100" onClick={() => navigate("/admin/ordenes")}>
-                    Cancelar
-                </button>
-                <button className="btn btn-primary w-100" disabled={saving} onClick={onConfirm}>
-                    {saving ? "Guardando..." : "Confirmar"}
-                </button>
                 </div>
             </div>
-            </div>
-        </div>
 
-        <div className="card">
-            <div className="card-body">
-            <h5 className="mb-3">Items</h5>
-            <div className="table-responsive">
-                <table className="table table-sm">
-                <thead>
-                    <tr>
-                    <th>Producto</th>
-                    <th className="text-center">Cant.</th>
-                    <th className="text-end">Precio</th>
-                    <th className="text-end">Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {(() => {
-                    const items = Array.isArray((data as any).items)
-                        ? (data as any).items
-                        : Array.isArray((data as any).detalles)
-                        ? (data as any).detalles
-                        : [];
-                    if (!items.length) {
-                        return (
+            <div className="card">
+                <div className="card-body">
+                <h5 className="mb-3">Items</h5>
+                <div className="table-responsive">
+                    <table className="table table-sm">
+                    <thead>
                         <tr>
-                            <td colSpan={4} className="text-center text-muted">Sin items</td>
+                        <th>Producto</th>
+                        <th className="text-center">Cant.</th>
+                        <th className="text-end">Precio</th>
+                        <th className="text-end">Subtotal</th>
                         </tr>
-                        );
-                    }
-                    return items.map((it: any, idx: number) => {
-                        const nombre = it.nombreProducto ?? it.nombre ?? "Producto";
-                        const cantidad = Number(it.cantidad ?? 1);
-                        const precio = Number(it.precioUnitario ?? it.precio ?? 0);
-                        const subtotal = Number(it.subtotal ?? precio * cantidad);
-                        const key = `${it.productoId ?? it.id ?? idx}-${nombre}`;
-                        return (
-                        <tr key={key}>
-                            <td>{nombre}</td>
-                            <td className="text-center">{cantidad}</td>
-                            <td className="text-end">${precio.toFixed(0)}</td>
-                            <td className="text-end">${subtotal.toFixed(0)}</td>
-                        </tr>
-                        );
-                    });
-                    })()}
-                </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                        {(() => {
+                        const items = Array.isArray((data as any).items)
+                            ? (data as any).items
+                            : Array.isArray((data as any).detalles)
+                            ? (data as any).detalles
+                            : [];
+                        if (!items.length) {
+                            return (
+                            <tr>
+                                <td colSpan={4} className="text-center text-muted">Sin items</td>
+                            </tr>
+                            );
+                        }
+                        return items.map((it: any, idx: number) => {
+                            const nombre = it.nombreProducto ?? it.nombre ?? "Producto";
+                            const cantidad = Number(it.cantidad ?? 1);
+                            const precio = Number(it.precioUnitario ?? it.precio ?? 0);
+                            const subtotal = Number(it.subtotal ?? precio * cantidad);
+                            const key = `${it.productoId ?? it.id ?? idx}-${nombre}`;
+                            return (
+                            <tr key={key}>
+                                <td>{nombre}</td>
+                                <td className="text-center">{cantidad}</td>
+                                <td className="text-end">${precio.toFixed(0)}</td>
+                                <td className="text-end">${subtotal.toFixed(0)}</td>
+                            </tr>
+                            );
+                        });
+                        })()}
+                    </tbody>
+                    </table>
+                </div>
+                </div>
             </div>
+
             </div>
         </div>
-
         </div>
     );
 };

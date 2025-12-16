@@ -26,7 +26,7 @@ const MenuPerfil: React.FC<Props> = ({ role }) => {
             {/* VENDEDOR */}
             {role === 'VENDEDOR' && (
             <>
-                <ListGroup.Item as={Link} to="/vendedor/ordenes">Órdenes vendedor</ListGroup.Item>
+                <ListGroup.Item as={Link} to="/admin/ordenes">Órdenes</ListGroup.Item>
                 <ListGroup.Item as={Link} to="/vendedor/mensajes">Mensajes</ListGroup.Item>
             </>
             )}
