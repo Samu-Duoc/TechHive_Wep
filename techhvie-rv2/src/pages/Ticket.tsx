@@ -39,7 +39,7 @@ const PRODUCTOS_BASE_URL =
     const [detalle, setDetalle] = useState<PedidoDetalleDTO | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
-    // ✅ Mapa productoId -> src
+    // Mapa productoId -> src
     const [imgByProductoId, setImgByProductoId] = useState<ImgMap>({});
 
     const receipt = useMemo(() => {
