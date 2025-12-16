@@ -7,6 +7,7 @@ const PRODUCTOS_BASE_URL =
     (import.meta as any).env?.VITE_API_URL ?? "http://localhost:8082";
 
     type ImgMap = Record<number, string>;
+    type NameMap = Record<number, string>;
 
     function buildImageSrc(p: any): string {
     // 1) si viene url directa
@@ -39,8 +40,9 @@ const PRODUCTOS_BASE_URL =
     const [detalle, setDetalle] = useState<PedidoDetalleDTO | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
-    // Mapa productoId -> src
+    // Mapa productoId -> src / nombre
     const [imgByProductoId, setImgByProductoId] = useState<ImgMap>({});
+    const [nameByProductoId, setNameByProductoId] = useState<NameMap>({});
 
     const receipt = useMemo(() => {
         try {
@@ -105,17 +107,20 @@ const PRODUCTOS_BASE_URL =
         try {
             const results = await Promise.allSettled(toFetch.map((id) => fetchProductoById(id)));
 
-            const next: ImgMap = {};
+            const nextImg: ImgMap = {};
+            const nextName: NameMap = {};
             results.forEach((r, idx) => {
             const id = toFetch[idx];
             if (r.status === "fulfilled") {
-                next[id] = buildImageSrc(r.value);
+                nextImg[id] = buildImageSrc(r.value);
+                if (r.value?.nombre) nextName[id] = r.value.nombre;
             } else {
-                next[id] = "/img/logo.jpg";
+                nextImg[id] = "/img/logo.jpg";
             }
             });
 
-            setImgByProductoId((prev) => ({ ...prev, ...next }));
+            setImgByProductoId((prev) => ({ ...prev, ...nextImg }));
+            setNameByProductoId((prev) => ({ ...prev, ...nextName }));
         } catch {
             // si algo falla, no rompas la pantalla
         }
@@ -168,6 +173,7 @@ const PRODUCTOS_BASE_URL =
                     {items.map((it: any, idx: number) => {
                     const pid = Number(it.productoId);
                     const imgSrc = Number.isFinite(pid) ? imgByProductoId[pid] : "/img/logo.jpg";
+                    const nombreVisible = it.nombreProducto ?? nameByProductoId[pid] ?? it.nombre ?? "Producto";
 
                     return (
                         <div
@@ -185,14 +191,14 @@ const PRODUCTOS_BASE_URL =
                         >
                             <img
                             src={imgSrc || "/img/logo.jpg"}
-                            alt={it.nombreProducto}
+                            alt={nombreVisible}
                             style={{ width: "100%", height: "100%", objectFit: "cover" }}
                             onError={(e) => ((e.target as HTMLImageElement).src = "/img/logo.jpg")}
                             />
                         </div>
 
                         <div className="flex-fill">
-                            <div className="fw-semibold">{it.nombreProducto}</div>
+                            <div className="fw-semibold">{nombreVisible}</div>
                             <div className="text-muted">Cantidad: {it.cantidad}</div>
                         </div>
 
