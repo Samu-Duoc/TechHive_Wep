@@ -1,81 +1,116 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import MenuPerfil from './MenuPerfil';
-import '../styles/MenuPerfil.css';
+// src/pages/Perfil.tsx
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import type { Usuario } from "../context/AuthContext";
+import MenuPerfil from "./MenuPerfil";
+import "../styles/MenuPerfil.css";
 
-interface ProfileData {
-  id?: number;
-  nombre?: string;
-  email?: string;
-  rol?: string;
-}
+const API = "http://localhost:8081";
 
 const Perfil: React.FC = () => {
-  const { usuario, setUsuario } = useAuth();
-  const [profile, setProfile] = useState<ProfileData | null>(usuario ?? null);
+  const { usuario, setUsuario, logout, token } = useAuth();
+
   const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState<Usuario>(() => usuario ?? {});
+  const [msg, setMsg] = useState<string>("");
 
   useEffect(() => {
-    // Intentar sincronizar con endpoint de auth si existe
-    const fetchProfile = async () => {
+    if (!usuario?.id) return;
+
+    const fetchUser = async () => {
       setLoading(true);
+      setMsg("");
       try {
-        const resp = await fetch('http://localhost:8081/auth/me');
+        const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+        const resp = await fetch(`${API}/usuarios/${usuario.id}`, { headers } as RequestInit);
+
         if (resp.ok) {
-          const data = await resp.json();
-          setProfile(data);
-          // mantener también en el contexto
-          setUsuario && setUsuario(data);
+          const data: Usuario = await resp.json();
+          setForm(data);
+          setUsuario(data);
         } else {
-          // fallback: usar usuario del contexto/localStorage
-          setProfile(usuario ?? null);
+          // fallback: lo que ya tienes en contexto/localStorage
+          setForm(usuario);
         }
-      } catch (e) {
-        setProfile(usuario ?? null);
+      } catch {
+        setForm(usuario);
       } finally {
         setLoading(false);
       }
     };
 
-    void fetchProfile();
+    void fetchUser();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [usuario?.id]);
+
+  if (!usuario) {
+    return (
+      <div className="container mt-4">
+        <p>Debes iniciar sesión para ver tu perfil.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mt-4">
       <div className="perfil-layout">
-        <MenuPerfil role={profile?.rol ?? usuario?.rol ?? null} />
+        <MenuPerfil role={usuario.rol ?? null} />
 
         <div className="perfil-card">
           <h3>Perfil de usuario</h3>
-          {loading ? (
-            <p>Cargando...</p>
-          ) : (
-            <div>
-              <div className="perfil-field">
-                <label>Nombre</label>
-                <div className="value">{profile?.nombre ?? '—'}</div>
-              </div>
 
-              <div className="perfil-field">
-                <label>Email</label>
-                <div className="value">{profile?.email ?? '—'}</div>
-              </div>
+          {msg && <p className="alert alert-info">{msg}</p>}
+          {loading && <p>Cargando...</p>}
 
-              <div className="perfil-field">
-                <label>Rol</label>
-                <div className="value">{profile?.rol ?? '—'}</div>
-              </div>
+          <div className="perfil-field">
+            <label>Nombre</label>
+            <div className="value">{form.nombre ?? "—"}</div>
+          </div>
 
-              <div className="perfil-field">
-                <label>Acciones</label>
-                <div>
-                  <button className="btn btn-warning me-2" onClick={() => { alert('Editar perfil (pendiente)'); }}>Editar</button>
-                  <button className="btn btn-secondary" onClick={() => { localStorage.removeItem('usuario'); localStorage.removeItem('isLoggedIn'); window.location.reload(); }}>Cerrar sesión</button>
-                </div>
-              </div>
+          <div className="perfil-field">
+            <label>Apellido</label>
+            <div className="value">{form.apellido ?? "—"}</div>
+          </div>
+
+          <div className="perfil-field">
+            <label>Email</label>
+            <div className="value">{form.email ?? "—"}</div>
+          </div>
+
+          <div className="perfil-field">
+            <label>RUT</label>
+            <div className="value">{form.rut ?? "—"}</div>
+          </div>
+
+          <div className="perfil-field">
+            <label>Teléfono</label>
+            <div className="value">{form.telefono ?? "—"}</div>
+          </div>
+
+          <div className="perfil-field">
+            <label>Dirección</label>
+            <div className="value">{form.direccion ?? "—"}</div>
+          </div>
+
+          <div className="perfil-field">
+            <label>Rol</label>
+            <div className="value">{form.rol ?? "—"}</div>
+          </div>
+
+          <div className="perfil-field">
+            <label>Acciones</label>
+            <div className="d-flex gap-2 flex-wrap">
+              <button className="btn btn-warning" onClick={() => window.location.href = "/cuenta/editar"}>
+                Editar perfil
+              </button>
+              <button className="btn btn-primary" onClick={() => window.location.href = "/cuenta/cambiar-password"}>
+                Cambiar contraseña
+              </button>
+              <button className="btn btn-outline-dark" onClick={() => { logout(); window.location.href = "/"; }}>
+                Cerrar sesión
+              </button>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

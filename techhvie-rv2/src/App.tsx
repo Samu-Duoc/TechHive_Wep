@@ -13,18 +13,17 @@ import Comprobante from "./pages/comprobante";
 import Inventario from "./pages/Inventario";
 
 import Perfil from "./pages/Perfil";
+import EditarPerfil from "./pages/EditarPerfil";
+import CambiarPassword from "./pages/CambiarPassword";
 import Ordenes from "./pages/Ordenes";
 import OrdenesVendedor from "./pages/Vendedor/OrdenesVendedor";
 import AdminDashboard from "./pages/Admin/AdminDashboard"; 
 import Mensajes from "./pages/Mensajes";
+import RecoverPassword from "./pages/RecoverPassword";
 
 import "./App.css";
 
 function App() {
-  const handleLoginSuccess = () => {
-    console.log("Login exitoso");
-  };
-
   return (
     <div className="app-container d-flex flex-column min-vh-100">
       
@@ -40,14 +39,13 @@ function App() {
           <Route path="/productos" element={<Productos />} />
           <Route path="/contacto" element={<Contacto />} />
 
-          <Route
-            path="/login"
-            element={<Login onLoginSuccess={handleLoginSuccess} />}
-          />
+          <Route path="/login" element={<Login />} />
 
           <Route path="/registro" element={<Registro />} />
+          <Route path="/recover-password" element={<RecoverPassword />} />
           <Route path="/comprobante" element={<Comprobante />} />
           <Route path="/pago" element={<Pago />} />
+          
 
           {/* INVENTARIO (Admin + Vendedor) */}
           <Route
@@ -67,6 +65,24 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["CLIENTE", "VENDEDOR", "ADMIN"]}>
                 <Perfil />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/cuenta/editar"
+            element={
+              <ProtectedRoute allowedRoles={["CLIENTE", "VENDEDOR", "ADMIN"]}>
+                <EditarPerfil />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/cuenta/cambiar-password"
+            element={
+              <ProtectedRoute allowedRoles={["CLIENTE", "VENDEDOR", "ADMIN"]}>
+                <CambiarPassword />
               </ProtectedRoute>
             }
           />

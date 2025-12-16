@@ -1,24 +1,24 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import App from "./App";
-import { CarritoProvider } from "./context/CarritoContext";
-import { AuthProvider } from "./context/AuthContext";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./index.css";
-import "./App.css";
-import "./styles/global.css";
+  import React from "react";
+  import ReactDOM from "react-dom/client";
+  import { BrowserRouter } from "react-router-dom";
+  import App from "./App";
+  import { CarritoProvider } from "./context/CarritoContext";
+  import { AuthProvider } from "./context/AuthContext";
+  import "bootstrap/dist/css/bootstrap.min.css";
+  import "./index.css";
+  import "./App.css";
+  import "./styles/global.css";
 
 
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <CarritoProvider>
-          <App />
-        </CarritoProvider>
-      </AuthProvider>
-    </BrowserRouter>
-  </React.StrictMode>
-);
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <React.StrictMode>
+      <BrowserRouter>
+        <AuthProvider>
+          <CarritoProvider>
+            <App />
+          </CarritoProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </React.StrictMode>
+  );

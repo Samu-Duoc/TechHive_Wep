@@ -122,8 +122,8 @@ interface Producto {
     };
 
     return (
-        <div className="productos-page container mt-5 pt-5">
-        <h2 className="mb-4 text-center">Tienda TechHive</h2>
+        <div className="productos-page container mt-5 pt-2">
+        <h2 className="mb-4 text-center productos-title">Productos</h2> 
 
         {/* Filtros */}
         <div className="row mb-4 align-items-center">
@@ -149,7 +149,7 @@ interface Producto {
             <input
                 type="text"
                 className="form-control"
-                placeholder="Buscar por nombre, descripción o tag..."
+                placeholder="Buscar por nombre"
                 value={terminoBusqueda}
                 onChange={(e) => setTerminoBusqueda(e.target.value)}
             />

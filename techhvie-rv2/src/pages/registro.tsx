@@ -1,9 +1,31 @@
-import React, { type FormEvent, useState, type ChangeEvent } from "react";
-import "../styles/auth.css";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-// Componente de Registro conectado al microservicio ms_auth_usuarios
-const RegisterIn: React.FC = () => {
-  const [formData, setFormData] = useState({
+const AUTH_URL = "http://localhost:8081/auth";
+
+const passwordRegex =
+  /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>?]).{8,}$/;
+
+type FormData = {
+  nombre: string;
+  apellido: string;
+  rut: string;
+  email: string;
+  password: string;
+  cPassword: string;
+  telefono: string;
+  direccion: string;
+  preguntaSeguridad: string;
+  respuestaSeguridad: string;
+  termCond: boolean;
+};
+
+const Register: React.FC = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
+  const [formData, setFormData] = useState<FormData>({
     nombre: "",
     apellido: "",
     rut: "",
@@ -12,377 +34,219 @@ const RegisterIn: React.FC = () => {
     cPassword: "",
     telefono: "",
     direccion: "",
+    preguntaSeguridad: "¿Cuál es el nombre de tu primera mascota?",
+    respuestaSeguridad: "",
     termCond: false,
   });
 
-  const [errors, setErrors] = useState({
-    nombre: "",
-    apellido: "",
-    rut: "",
-    email: "",
-    password: "",
-    cPassword: "",
-    telefono: "",
-    direccion: "",
-    termCond: "",
-    backend: "",
-  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+  };
 
-    // Solo números para teléfono
-    if (name === "telefono") {
-      const cleaned = value.replace(/\D+/g, "");
-      setFormData((prev) => ({ ...prev, [name]: cleaned }));
-      return;
+  const validate = () => {
+    const e: Record<string, string> = {};
+
+    if (!formData.nombre.trim()) e.nombre = "Nombre obligatorio";
+    if (!formData.apellido.trim()) e.apellido = "Apellido obligatorio";
+    if (!formData.rut.trim()) e.rut = "RUT obligatorio";
+    if (!formData.email.trim()) e.email = "Correo obligatorio";
+    if (!formData.telefono.trim()) e.telefono = "Teléfono obligatorio";
+    if (!formData.direccion.trim()) e.direccion = "Dirección obligatoria";
+
+    if (!formData.password) e.password = "Contraseña obligatoria";
+    else if (!passwordRegex.test(formData.password)) {
+      e.password =
+        "Debe tener 8+ caracteres, mayúscula, minúscula, número y un caracter especial (ej: ! @ # $ % ...)";
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    // Si quieres obligar seguridad (recomendado para tu recuperar-clave-segura):
+    if (!formData.respuestaSeguridad.trim()) e.respuestaSeguridad = "Respuesta de seguridad obligatoria";
+
+    if (!formData.termCond) e.termCond = "Debes aceptar los términos";
+
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
-  const validar = (): boolean => {
-    let todoOk = true;
-    const newErrors = { ...errors, backend: "" };
+  const handleSubmit = async (ev: React.FormEvent) => {
+    ev.preventDefault();
+    if (!validate()) return;
 
-    // Nombre
-    if (formData.nombre.trim().length < 3 || formData.nombre.trim().length > 50) {
-      newErrors.nombre = "Nombre debe contener entre 3 y 50 caracteres";
-      todoOk = false;
-    } else newErrors.nombre = "";
+    setLoading(true);
+    setErrors({});
 
-    // Apellido
-    if (formData.apellido.trim().length < 3 || formData.apellido.trim().length > 50) {
-      newErrors.apellido = "Apellido debe contener entre 3 y 50 caracteres";
-      todoOk = false;
-    } else newErrors.apellido = "";
-
-    // RUT (validación simple, solo que no esté vacío)
-    if (!formData.rut.trim()) {
-      newErrors.rut = "El RUT es obligatorio";
-      todoOk = false;
-    } else newErrors.rut = "";
-
-    // Email
-    if (
-      formData.email.trim() === "" ||
-      !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
-        formData.email.trim()
-      )
-    ) {
-      newErrors.email =
-        "Correo debe tener un formato válido (usuario@dominio.com)";
-      todoOk = false;
-    } else if (formData.email.length > 100) {
-      newErrors.email = "Correo NO debe ser mayor a 100 caracteres";
-      todoOk = false;
-    } else newErrors.email = "";
-
-    // Password: debe tener entre 6 y 8 caracteres, al menos una mayúscula y + o *
-    if (
-      formData.password.length < 6 ||
-      formData.password.length > 8 ||
-      !/^(?=.*[A-Z])(?=.*[+*]).{6,8}$/.test(formData.password)
-    ) {
-      newErrors.password =
-        "La contraseña debe tener entre 6 y 8 caracteres y contener al menos una mayúscula y un carácter especial (+ o *)";
-      todoOk = false;
-    } else newErrors.password = "";
-
-    // Confirmar contraseña
-    if (formData.cPassword !== formData.password) {
-      newErrors.cPassword = "La contraseña ingresada no coincide";
-      todoOk = false;
-    } else newErrors.cPassword = "";
-
-    // Teléfono (9 dígitos)
-    if (!formData.telefono) {
-      newErrors.telefono = "El teléfono es obligatorio";
-      todoOk = false;
-    } else if (
-      formData.telefono.length < 9 ) {
-      newErrors.telefono = "El teléfono debe tener 9 caracteres";
-      todoOk = false;
-    } else newErrors.telefono = "";
-
-    // Dirección
-    if (!formData.direccion.trim()) {
-      newErrors.direccion = "La dirección es obligatoria";
-      todoOk = false;
-    } else newErrors.direccion = "";
-
-    // Términos
-    if (!formData.termCond) {
-      newErrors.termCond = "Debes aceptar los términos y condiciones";
-      todoOk = false;
-    } else newErrors.termCond = "";
-
-    setErrors(newErrors);
-    return todoOk;
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!validar()) return;
+    const payload = {
+      nombre: formData.nombre.trim(),
+      apellido: formData.apellido.trim(),
+      rut: formData.rut.trim(),
+      email: formData.email.trim(),
+      password: formData.password,
+      telefono: formData.telefono.trim(),
+      direccion: formData.direccion.trim(),
+      preguntaSeguridad: formData.preguntaSeguridad?.trim(),
+      respuestaSeguridad: formData.respuestaSeguridad?.trim(),
+    };
 
     try {
-      const payload = {
-        nombre: formData.nombre,
-        apellido: formData.apellido,
-        rut: formData.rut,
-        email: formData.email,
-        password: formData.password,
-        telefono: formData.telefono,
-        direccion: formData.direccion,
-      };
-
-      console.debug("Registro payload:", payload);
-
-      const response = await fetch("http://localhost:8081/auth/registro", {
-        // 🔧 cambia puerto si tu ms_auth_usuarios usa otro
+      const response = await fetch(`${AUTH_URL}/registro`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        let errorText = "";
+        let errorText = "Error al registrar usuario.";
         try {
           const errJson = await response.json();
           errorText = errJson.message || errJson.error || JSON.stringify(errJson);
-        } catch (err) {
+        } catch {
           errorText = await response.text();
         }
-
-        console.error("Registro falló:", response.status, errorText);
-
-        setErrors((prev) => ({
-          ...prev,
-          backend:
-            errorText ||
-            "Error al registrar usuario. Verifica los datos e intenta nuevamente.",
-        }));
-
+        setErrors((prev) => ({ ...prev, backend: errorText }));
         return;
       }
 
-      alert("¡Se ha registrado correctamente!");
-
-      // Reset formulario
-      setFormData({
-        nombre: "",
-        apellido: "",
-        rut: "",
-        email: "",
-        password: "",
-        cPassword: "",
-        telefono: "",
-        direccion: "",
-        termCond: false,
-      });
-      setErrors({
-        nombre: "",
-        apellido: "",
-        rut: "",
-        email: "",
-        password: "",
-        cPassword: "",
-        telefono: "",
-        direccion: "",
-        termCond: "",
-        backend: "",
-      });
-
-      // Enviar al login
-      window.location.href = "/login";
+      // Usuario registrado exitosamente
+      const usuarioRegistrado = await response.json();
+      
+      // Iniciar sesión automáticamente
+      login(usuarioRegistrado);
+      
+      // Redirigir al inicio
+      navigate("/");
     } catch (error) {
-      console.error(error);
-      setErrors((prev) => ({
-        ...prev,
-        backend: "Error de conexión con el servidor de usuarios.",
-      }));
+      setErrors((prev) => ({ ...prev, backend: "Error de conexión con el servidor de usuarios." }));
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="auth-page">
-      <div className="auth-illustration auth-illustration--registro" aria-hidden>
-        <img
-          className="login-img"
-          src="/img/login.png"
-          alt="Regístrate"
-          onError={(e) => {
-            const img = e.currentTarget as HTMLImageElement;
-            img.style.display = 'none';
-            const parent = img.parentElement;
-            if (parent) parent.classList.add('no-img');
-          }}
-        />
-      </div>
       <div className="auth-card">
         <h2>Crear cuenta</h2>
 
-        {errors.backend && (
-          <p className="mensajeError text-center">{errors.backend}</p>
-        )}
+        {errors.backend && <p className="mensajeError text-center">{errors.backend}</p>}
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-input">
-            <label htmlFor="nombre">Nombre</label>
-            <input
-              id="nombre"
-              type="text"
-              name="nombre"
-              value={formData.nombre}
-              onChange={handleInputChange}
-              placeholder="Nombre"
-            />
-            {errors.nombre && (
-              <div className="mensajeError">{errors.nombre}</div>
-            )}
+            <label>Nombre</label>
+            <input name="nombre" value={formData.nombre} onChange={handleInputChange} />
+            {errors.nombre && <div className="mensajeError">{errors.nombre}</div>}
           </div>
 
           <div className="form-input">
-            <label htmlFor="apellido">Apellido</label>
-            <input
-              id="apellido"
-              type="text"
-              name="apellido"
-              value={formData.apellido}
-              onChange={handleInputChange}
-              placeholder="Apellido"
-            />
-            {errors.apellido && (
-              <div className="mensajeError">{errors.apellido}</div>
-            )}
+            <label>Apellido</label>
+            <input name="apellido" value={formData.apellido} onChange={handleInputChange} />
+            {errors.apellido && <div className="mensajeError">{errors.apellido}</div>}
           </div>
 
           <div className="form-input">
-            <label htmlFor="rut">RUT</label>
-            <input
-              id="rut"
-              type="text"
-              name="rut"
-              value={formData.rut}
-              onChange={handleInputChange}
-              placeholder="Ej: 12345678K"
-            />
+            <label>RUT</label>
+            <input name="rut" value={formData.rut} onChange={handleInputChange} placeholder="Ej: 12345678K" />
             {errors.rut && <div className="mensajeError">{errors.rut}</div>}
           </div>
 
           <div className="form-input">
-            <label htmlFor="email">Correo</label>
-            <input
-              id="email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              placeholder="Correo"
-            />
-            {errors.email && (
-              <div className="mensajeError">{errors.email}</div>
-            )}
+            <label>Correo</label>
+            <input name="email" type="email" value={formData.email} onChange={handleInputChange} />
+            {errors.email && <div className="mensajeError">{errors.email}</div>}
           </div>
 
           <div className="form-input">
-            <label htmlFor="telefono">Teléfono</label>
-            <input
-              id="telefono"
-              type="tel"
-              name="telefono"
-              value={formData.telefono}
-              onChange={handleInputChange}
-              placeholder="Teléfono"
-              inputMode="numeric"
-            />
-            {errors.telefono && (
-              <div className="mensajeError">{errors.telefono}</div>
-            )}
+            <label>Teléfono</label>
+            <input name="telefono" value={formData.telefono} onChange={handleInputChange} />
+            {errors.telefono && <div className="mensajeError">{errors.telefono}</div>}
           </div>
 
           <div className="form-input">
-            <label htmlFor="direccion">Dirección</label>
-            <input
-              id="direccion"
-              type="text"
-              name="direccion"
-              value={formData.direccion}
-              onChange={handleInputChange}
-              placeholder="Dirección"
-            />
-            {errors.direccion && (
-              <div className="mensajeError">{errors.direccion}</div>
-            )}
+            <label>Dirección</label>
+            <input name="direccion" value={formData.direccion} onChange={handleInputChange} />
+            {errors.direccion && <div className="mensajeError">{errors.direccion}</div>}
           </div>
 
           <div className="form-input">
-            <label htmlFor="password">Contraseña</label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              placeholder="Contraseña"
-            />
-            {errors.password && (
-              <div className="mensajeError">{errors.password}</div>
-            )}
+            <label>Contraseña</label>
+            <div style={{ position: "relative" }}>
+              <input
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={handleInputChange}
+                style={{ paddingRight: "40px" }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                {showPassword ? (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                ) : (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                )}
+              </button>
+            </div>
+            {errors.password && <div className="mensajeError">{errors.password}</div>}
+          </div>
+
+          <hr />
+
+          <div className="form-input">
+            <label>Pregunta de seguridad</label>
+            <input name="preguntaSeguridad" value={formData.preguntaSeguridad} onChange={handleInputChange} />
           </div>
 
           <div className="form-input">
-            <label htmlFor="cPassword">Confirmar contraseña</label>
-            <input
-              id="cPassword"
-              type="password"
-              name="cPassword"
-              value={formData.cPassword}
-              onChange={handleInputChange}
-              placeholder="Confirmar contraseña"
-            />
-            {errors.cPassword && (
-              <div className="mensajeError">{errors.cPassword}</div>
-            )}
+            <label>Respuesta de seguridad</label>
+            <input name="respuestaSeguridad" value={formData.respuestaSeguridad} onChange={handleInputChange} />
+            {errors.respuestaSeguridad && <div className="mensajeError">{errors.respuestaSeguridad}</div>}
           </div>
 
           <div className="form-input termCond">
             <input
-              id="termCond"
               type="checkbox"
               name="termCond"
               checked={formData.termCond}
               onChange={handleInputChange}
+              id="termCond"
             />
-            <label htmlFor="termCond">
-              Acepto los términos y condiciones
+            <label htmlFor="termCond" style={{ cursor: "pointer" }}>
+              Acepto términos y condiciones
             </label>
-            {errors.termCond && (
-              <div className="mensajeError">{errors.termCond}</div>
-            )}
           </div>
+          {errors.termCond && <div className="mensajeError text-center">{errors.termCond}</div>}
 
-          <div className="form-actions d-flex">
-            <button type="submit" className="auth-btn">
-              Registrarse
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => window.history.back()}
-            >
-              Volver
-            </button>
-          </div>
+          <button className="btn btn-warning w-100 mt-3" disabled={loading}>
+            {loading ? "Registrando..." : "Registrarse"}
+          </button>
         </form>
       </div>
     </div>
   );
 };
 
-export default RegisterIn;
+export default Register;
