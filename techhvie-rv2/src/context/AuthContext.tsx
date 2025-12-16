@@ -78,7 +78,7 @@ interface AuthContextType {
         return;
         }
 
-        // ✅ Caso backend viejo: UsuarioDTO sin token
+        //Caso backend viejo: UsuarioDTO sin token
         setToken(null);
         setUsuario(data as Usuario);
     };

@@ -1,18 +1,7 @@
 /* === COMPROBANTE TECHHIVE === */
 @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&family=Audiowide&display=swap');
 
-:root {
-  --primary: #E7B62B;
-  --primary-dark: #A76D15;
-  --surface: #fff;
-  --bg: #DCDED4;
-  --text: #111013;
-  --text-muted: #6b6b6b;
-  --radius: 18px;
-  --shadow: 0 10px 25px rgba(46, 57, 72, 0.15);
-  --font-main: 'Nunito Sans', sans-serif;
-  --font-heading: 'Audiowide', sans-serif;
-}
+/* Usar variables globales definidas en global.css; no sobrescribir :root aquí */
 
 /* === CONTENEDOR GENERAL (scoped) === */
 .th-ticket .container {

@@ -148,7 +148,7 @@ function App() {
           <Route
             path="/admin/ordenes"
             element={
-              <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <ProtectedRoute allowedRoles={["ADMIN", "VENDEDOR"]}>
                 <AdminOrdenes />
               </ProtectedRoute>
             }
@@ -157,7 +157,7 @@ function App() {
           <Route
             path="/admin/ordenes/:pedidoId"
             element={
-              <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <ProtectedRoute allowedRoles={["ADMIN", "VENDEDOR"]}>
                 <AdminOrdenDetalle />
               </ProtectedRoute>
             }

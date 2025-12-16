@@ -119,8 +119,13 @@ export async function listarTodas(): Promise<Pedido[]> {
 
 // Obtener detalle de un pedido
 export async function detalle(pedidoId: string | number): Promise<PedidoDetalleDTO> {
+	// Validación temprana para evitar llamadas con IDs inválidos
+	const str = String(pedidoId);
+	if (!str || str === "undefined" || str === "null") {
+		throw new Error("ID de pedido inválido");
+	}
 	try {
-		const { data } = await api.get<PedidoDetalleDTO>(`/pedidos/${pedidoId}`);
+		const { data } = await api.get<PedidoDetalleDTO>(`/pedidos/${str}`);
 		return data;
 	} catch (err) {
 		const e = err as AxiosError<any>;

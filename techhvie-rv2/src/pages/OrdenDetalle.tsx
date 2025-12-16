@@ -12,21 +12,28 @@ const OrdenDetalle: React.FC = () => {
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        const run = async () => {
-        if (!pedidoId) return; //evita /undefined
+    const refetch = async () => {
+        if (!pedidoId) return;
         try {
-            setLoading(true);
-            const resp = await pedidosService.detalle(pedidoId);
-            setData(resp);
+        setLoading(true);
+        const resp = await pedidosService.detalle(pedidoId);
+        setData(resp);
         } catch (e) {
-            console.error(e);
+        console.error(e);
         } finally {
-            setLoading(false);
+        setLoading(false);
         }
-        };
-        run();
+    };
+
+    useEffect(() => {
+        void refetch();
     }, [pedidoId]);
+
+    useEffect(() => {
+        const onFocus = () => { void refetch(); };
+        window.addEventListener("focus", onFocus);
+        return () => window.removeEventListener("focus", onFocus);
+    }, []);
 
     const { usuario } = useAuth();
     if (!pedidoId) return <div style={{ padding: 24 }}>ID de orden inválido.</div>;
@@ -44,7 +51,12 @@ const OrdenDetalle: React.FC = () => {
             ← Volver
         </button>
 
-        <h2>Detalle Orden #{pedidoId}</h2>
+        <div className="d-flex justify-content-between align-items-center">
+            <h2 className="m-0">Detalle Orden #{pedidoId}</h2>
+            <button className="btn btn-outline-primary" onClick={() => void refetch()} disabled={loading}>
+                {loading ? "Actualizando..." : "Actualizar"}
+            </button>
+        </div>
         <p><b>Estado:</b> {data.estado ?? "—"}</p>
         <p><b>Método de pago:</b> {data.metodoPago ?? "—"}</p>
         <p><b>Total:</b> ${Number(data.total ?? 0).toLocaleString("es-CL")}</p>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import pedidosService from "../services/pedidosService";
 import { useAuth } from "../context/AuthContext";
 import MenuPerfil from "./MenuPerfil";
@@ -16,11 +16,11 @@ type Orden = {
 	const OrdenesCliente: React.FC = () => {
 	const { usuario } = useAuth();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const [ordenes, setOrdenes] = useState<Orden[]>([]);
 	const [loading, setLoading] = useState(false);
 
-	useEffect(() => {
-		const run = async () => {
+	const refetch = async () => {
 		if (!usuario?.id) return;
 		try {
 			setLoading(true);
@@ -31,9 +31,17 @@ type Orden = {
 		} finally {
 			setLoading(false);
 		}
-		};
-		run();
-	}, [usuario?.id]);
+	};
+
+	useEffect(() => {
+		void refetch();
+	}, [usuario?.id, location.key]);
+
+	useEffect(() => {
+		const onFocus = () => { void refetch(); };
+		window.addEventListener("focus", onFocus);
+		return () => window.removeEventListener("focus", onFocus);
+	}, []);
 
 	if (!usuario?.id) {
 		return (
@@ -52,7 +60,12 @@ type Orden = {
 			<MenuPerfil role={usuario.rol ?? null} />
 
 			<div className="perfil-card">
-			<h2 className="mb-3">Mis Órdenes</h2>
+			<div className="d-flex justify-content-between align-items-center mb-3">
+				<h2 className="m-0">Mis Órdenes</h2>
+				<button className="btn btn-outline-primary" onClick={() => void refetch()} disabled={loading}>
+					{loading ? "Actualizando..." : "Actualizar"}
+				</button>
+			</div>
 
 			{loading ? (
 				<div className="alert alert-info">Cargando órdenes...</div>

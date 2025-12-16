@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import pedidosService from "../../services/pedidosService";
@@ -22,10 +22,19 @@ const ESTADOS: EstadoPedido[] = [
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
+    const invalidId = useMemo(() => {
+        if (!pedidoId) return true;
+        return pedidoId === "undefined" || pedidoId === "null";
+    }, [pedidoId]);
+
     useEffect(() => {
         const run = async () => {
         if (!usuario || (usuario.rol !== "ADMIN" && usuario.rol !== "VENDEDOR")) {
             navigate("/");
+            return;
+        }
+        if (invalidId) {
+            setLoading(false);
             return;
         }
         setLoading(true);
@@ -38,8 +47,8 @@ const ESTADOS: EstadoPedido[] = [
             setLoading(false);
         }
         };
-        if (pedidoId) void run();
-    }, [pedidoId, usuario]);
+        void run();
+    }, [pedidoId, usuario, invalidId]);
 
     const onConfirm = async () => {
         if (!pedidoId) return;
@@ -52,6 +61,17 @@ const ESTADOS: EstadoPedido[] = [
         setSaving(false);
         }
     };
+
+    if (invalidId) {
+        return (
+        <div className="container mt-5 pt-5">
+            <div className="alert alert-warning">ID de orden inválido.</div>
+            <button className="btn btn-outline-primary" onClick={() => navigate("/admin/ordenes")}>
+            Volver
+            </button>
+        </div>
+        );
+    }
 
     if (loading) {
         return (
@@ -81,7 +101,7 @@ const ESTADOS: EstadoPedido[] = [
         <div className="card mb-3">
             <div className="card-body d-flex justify-content-between flex-wrap gap-2">
             <div>
-                <h4 className="mb-1">Orden #{data.pedidoId}</h4>
+                <h4 className="mb-1">Orden #{(data as any).pedidoId ?? (data as any).id ?? pedidoId}</h4>
                 <div className="text-muted">
                 Usuario: {data.usuarioId} · Fecha: {data.fecha}
                 </div>
@@ -140,14 +160,35 @@ const ESTADOS: EstadoPedido[] = [
                     </tr>
                 </thead>
                 <tbody>
-                    {data.items.map((it) => (
-                    <tr key={`${it.productoId}-${it.nombreProducto}`}>
-                        <td>{it.nombreProducto}</td>
-                        <td className="text-center">{it.cantidad}</td>
-                        <td className="text-end">${Number(it.precioUnitario).toFixed(0)}</td>
-                        <td className="text-end">${Number(it.subtotal).toFixed(0)}</td>
-                    </tr>
-                    ))}
+                    {(() => {
+                    const items = Array.isArray((data as any).items)
+                        ? (data as any).items
+                        : Array.isArray((data as any).detalles)
+                        ? (data as any).detalles
+                        : [];
+                    if (!items.length) {
+                        return (
+                        <tr>
+                            <td colSpan={4} className="text-center text-muted">Sin items</td>
+                        </tr>
+                        );
+                    }
+                    return items.map((it: any, idx: number) => {
+                        const nombre = it.nombreProducto ?? it.nombre ?? "Producto";
+                        const cantidad = Number(it.cantidad ?? 1);
+                        const precio = Number(it.precioUnitario ?? it.precio ?? 0);
+                        const subtotal = Number(it.subtotal ?? precio * cantidad);
+                        const key = `${it.productoId ?? it.id ?? idx}-${nombre}`;
+                        return (
+                        <tr key={key}>
+                            <td>{nombre}</td>
+                            <td className="text-center">{cantidad}</td>
+                            <td className="text-end">${precio.toFixed(0)}</td>
+                            <td className="text-end">${subtotal.toFixed(0)}</td>
+                        </tr>
+                        );
+                    });
+                    })()}
                 </tbody>
                 </table>
             </div>
