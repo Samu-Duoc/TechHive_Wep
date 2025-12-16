@@ -1,197 +1,187 @@
-import React, {createContext,useContext,useEffect,useState} from "react";
-import axios from "axios";
+import React, { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useCarrito } from "../context/CarritoContext";
+import "../styles/carrito.css";
 
+const TrashIcon: React.FC = () => (
+  <svg
+    aria-hidden="true"
+    focusable="false"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <line x1="10" y1="11" x2="10" y2="17" />
+    <line x1="14" y1="11" x2="14" y2="17" />
+  </svg>
+);
 
-//Conexción con ms carrito
-const CARRITO_API = "http://localhost:8083/carrito";
-export interface ProductoCarrito {
-  id: number;       // ID local del front
-  titulo: string;
-  descripcion: string;
-  imagen: string;
-  categoria: string;
-  tags: string[];
-  precio: number;
-  cantidad: number;
-  sku?: string;     // EL SKU viaja como productoId real al backend
-}
+const Carrito: React.FC = () => {
+  const navigate = useNavigate();
+  const { items, total, increase, decrease, remove } = useCarrito();
 
-interface CarritoContextType {
-  carrito: ProductoCarrito[];
-  agregarAlCarrito: (producto: ProductoCarrito) => void;
-  eliminarDelCarrito: (id: number) => void;
-  vaciarCarrito: () => void;
-  actualizarCantidad: (id: number, nuevaCantidad: number) => void;
-}
+  const discount = useMemo(() => 0, []);
+  const tax = useMemo(() => 0, []);
+  const shipping = useMemo(() => 0, []);
+  const grandTotal = useMemo(
+    () => Math.max(0, total - discount + tax + shipping),
+    [total, discount, tax, shipping]
+  );
 
-interface UsuarioLS {
-  id: number;
-  nombre: string;
-  email: string;
-  rol: "ADMIN" | "VENDEDOR" | "CLIENTE";
-}
-
-
-// HELPER — OBTENER USUARIO LOGUEADO
-const obtenerUsuarioActual = (): UsuarioLS | null => {
-  try {
-    const raw = localStorage.getItem("usuario");
-    return raw ? (JSON.parse(raw) as UsuarioLS) : null;
-  } catch {
-    return null;
-  }
-};
-
-// CONTEXTO DEL CARRITO
-const CarritoContext = createContext<CarritoContextType | undefined>(undefined);
-
-export const CarritoProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [carrito, setCarrito] = useState<ProductoCarrito[]>([]);
-  const [carritoId, setCarritoId] = useState<number | null>(null);
-
-  
-  // Cargar desde localStorage
-  useEffect(() => {
-    const data = localStorage.getItem("carritoTechHive");
-    const id = localStorage.getItem("carritoTechHiveId");
-
-    if (data) {
-      try {
-        setCarrito(JSON.parse(data));
-      } catch {
-        setCarrito([]);
-      }
-    }
-
-    if (id) {
-      const parsed = Number(id);
-      if (!Number.isNaN(parsed)) setCarritoId(parsed);
-    }
-  }, []);
-
-  // Guardar al cambiar
-  useEffect(() => {
-    localStorage.setItem("carritoTechHive", JSON.stringify(carrito));
-  }, [carrito]);
-
-  useEffect(() => {
-    if (carritoId !== null) {
-      localStorage.setItem("carritoTechHiveId", String(carritoId));
-    }
-  }, [carritoId]);
-
-  //Asegurar carrito en el backend
-  const asegurarCarritoEnBackend = async (
-    usuarioId: number
-  ): Promise<number | null> => {
-    try {
-      // Si ya existe un ID en memoria → reutilizar
-      if (carritoId !== null) return carritoId;
-
-      // Intentar obtener carrito existente por usuario
-      try {
-        const resp = await axios.get(`${CARRITO_API}/usuario/${usuarioId}`);
-        if (resp.data?.id) {
-          setCarritoId(resp.data.id);
-          return resp.data.id;
-        }
-      } catch {
-        // 404, crear nuevo
-      }
-
-      // Crear carrito
-      const nuevo = await axios.post(CARRITO_API, { usuarioId });
-      if (nuevo.data?.id) {
-        setCarritoId(nuevo.data.id);
-        return nuevo.data.id;
-      }
-      return null;
-    } catch (e) {
-      console.error("Error creando/obteniendo carrito:", e);
-      return null;
-    }
-  };
-
-  //Sincronizar ítem al backend
-  const syncAgregarItemBackend = async (producto: ProductoCarrito) => {
-    const usuario = obtenerUsuarioActual();
-    if (!usuario) return; // sin login → modo solo front
-
-    const id = await asegurarCarritoEnBackend(usuario.id);
-    if (!id) return;
-
-    try {
-      const productoId = producto.sku ?? String(producto.id);
-      const subtotal = producto.precio * producto.cantidad;
-
-      await axios.post(`${CARRITO_API}/${id}/items`, {
-        productoId,
-        cantidad: producto.cantidad,
-        subtotal,
-      });
-    } catch (error) {
-      console.error("Error al agregar ítem al backend:", error);
-    }
-  };
-
-
-  //ACCIONES DEL CARRITO
-
-  const agregarAlCarrito = (producto: ProductoCarrito) => {
-    setCarrito((prev) => {
-      const existe = prev.find((p) => p.id === producto.id);
-      if (existe) {
-        return prev.map((p) =>
-          p.id === producto.id
-            ? { ...p, cantidad: p.cantidad + producto.cantidad }
-            : p
-        );
-      }
-      return [...prev, producto];
-    });
-
-    // sincronizar sin bloquear la UI
-    void syncAgregarItemBackend(producto);
-  };
-
-  const eliminarDelCarrito = (id: number) => {
-    setCarrito((prev) => prev.filter((p) => p.id !== id));
-  };
-
-  const vaciarCarrito = () => {
-    setCarrito([]);
-  };
-
-  const actualizarCantidad = (id: number, nuevaCantidad: number) => {
-    setCarrito((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, cantidad: nuevaCantidad } : p
-      )
-    );
+  const proceed = () => {
+    if (items.length === 0) return;
+    navigate("/pago");
   };
 
   return (
-    <CarritoContext.Provider
-      value={{
-        carrito,
-        agregarAlCarrito,
-        eliminarDelCarrito,
-        vaciarCarrito,
-        actualizarCantidad,
-      }}
-    >
-      {children}
-    </CarritoContext.Provider>
+    <div className="cart-page">
+      <div className="cart-head">
+        <h1>Carrito</h1>
+
+        <div className="cart-steps">
+          <div className="step">
+            <b>1.</b> Carrito
+          </div>
+          <div className="line" />
+          <div className="step">
+            <b>2.</b> Datos
+          </div>
+          <div className="line" />
+          <div className="step">
+            <b>3.</b> Pago
+          </div>
+        </div>
+      </div>
+
+      {items.length === 0 ? (
+        <div className="cart-card cart-left" style={{ marginTop: 16, padding: 18 }}>
+          <h3 style={{ margin: 0, fontWeight: 800 }}>Tu carrito está vacío</h3>
+          <p style={{ marginTop: 8, color: "#6b7280" }}>
+            Agrega productos para poder pagar.
+          </p>
+          <button
+            className="primary-btn"
+            style={{ maxWidth: 260 }}
+            onClick={() => navigate("/")}
+          >
+            Ir a la tienda
+          </button>
+        </div>
+      ) : (
+        <div className="cart-grid">
+          {/* LEFT */}
+          <div className="cart-card cart-left">
+            {items.map((p) => (
+              <div className="cart-item" key={p.productoId}>
+                <img
+                  className="item-img"
+                  src={p.imagenUrl || "/img/logo.jpg"}
+                  alt={p.nombre}
+                  onError={(e) =>
+                    ((e.target as HTMLImageElement).src = "/img/logo.jpg")
+                  }
+                />
+
+                <div className="item-main">
+                  <div className="item-sub">
+                    {p.sku ? `SKU ${p.sku}` : `ID ${p.productoId}`}
+                    {p.stock != null && (
+                      <span className="item-stock">Stock: {p.stock}</span>
+                    )}
+                  </div>
+
+                  {/*PRECIO + BOTONES A LA DERECHA */}
+                  <div className="price-row">
+                    <div className="item-price">
+                      ${Number(p.precio).toLocaleString("es-CL")}
+                    </div>
+
+                    <div className="qty qty-inline">
+                      <button type="button" onClick={() => decrease(p.productoId)}>
+                        –
+                      </button>
+
+                      <span>{p.cantidad}</span>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (p.stock != null && p.cantidad >= p.stock) return;
+                          increase(p.productoId);
+                        }}
+                        disabled={p.stock != null && p.cantidad >= p.stock}
+                        title={
+                          p.stock != null && p.cantidad >= p.stock
+                            ? "Stock máximo alcanzado"
+                            : "Aumentar"
+                        }
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/*SOLO UN BASURERO (arriba derecha) */}
+                <div className="item-actions">
+                  <button
+                    className="icon-btn danger"
+                    title="Eliminar"
+                    onClick={() => remove(p.productoId)}
+                    type="button"
+                    aria-label={`Eliminar ${p.nombre}`}
+                  >
+                    <TrashIcon />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* RIGHT */}
+          <div className="cart-card cart-right">
+            <div className="summary-title">Resumen de la orden</div>
+
+            <div className="summary-row">
+              <span>Subtotal</span>
+              <b>${Number(total).toLocaleString("es-CL")}</b>
+            </div>
+            <div className="summary-row">
+              <span>Descuento</span>
+              <b>${Number(discount).toLocaleString("es-CL")}</b>
+            </div>
+            <div className="summary-row">
+              <span>Impuestos</span>
+              <b>${Number(tax).toLocaleString("es-CL")}</b>
+            </div>
+            <div className="summary-row">
+              <span>Envío</span>
+              <b>{shipping === 0 ? "Gratis" : `$${Number(shipping).toLocaleString("es-CL")}`}</b>
+            </div>
+
+            <div className="summary-divider" />
+
+            <div className="summary-row">
+              <span className="summary-total">Total</span>
+              <b className="summary-total">${Number(grandTotal).toLocaleString("es-CL")}</b>
+            </div>
+
+            <button className="primary-btn" onClick={proceed} disabled={items.length === 0}>
+              Proceder al pago
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
-export const useCarrito = (): CarritoContextType => {
-  const context = useContext(CarritoContext);
-  if (!context)
-    throw new Error("useCarrito debe usarse dentro de un CarritoProvider");
-  return context;
-};
-
-export default CarritoContext;
+export default Carrito;

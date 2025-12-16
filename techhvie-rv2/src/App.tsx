@@ -9,15 +9,19 @@ import Productos from "./pages/productos";
 import Login from "./pages/Login";
 import Registro from "./pages/registro";
 import Pago from "./pages/pago";
-import Comprobante from "./pages/comprobante";
+import Ticket from "./pages/Ticket";
+import Carrito from "./pages/Carrito";
+import ProductoDetalle from "./pages/ProductoDetalle";
 import Inventario from "./pages/Inventario";
 
 import Perfil from "./pages/Perfil";
 import EditarPerfil from "./pages/EditarPerfil";
-import CambiarPassword from "./pages/CambiarPassword";
-import Ordenes from "./pages/Ordenes";
+import OrdenesCliente from "./pages/OrdenesCliente";
+import OrdenDetalle from "./pages/OrdenDetalle";
 import OrdenesVendedor from "./pages/Vendedor/OrdenesVendedor";
 import AdminDashboard from "./pages/Admin/AdminDashboard"; 
+import AdminOrdenes from "./pages/Admin/AdminOrdenes";
+import AdminOrdenDetalle from "./pages/Admin/AdminOrdenDetalle";
 import Mensajes from "./pages/Mensajes";
 import RecoverPassword from "./pages/RecoverPassword";
 
@@ -37,14 +41,17 @@ function App() {
           {/* PÚBLICO */}
           <Route path="/" element={<Inicio />} />
           <Route path="/productos" element={<Productos />} />
+          <Route path="/productos/:id" element={<ProductoDetalle />} />
           <Route path="/contacto" element={<Contacto />} />
+          <Route path="/carrito" element={<Carrito />} />
 
           <Route path="/login" element={<Login />} />
 
           <Route path="/registro" element={<Registro />} />
           <Route path="/recover-password" element={<RecoverPassword />} />
-          <Route path="/comprobante" element={<Comprobante />} />
+          <Route path="/ticket" element={<Ticket />} />
           <Route path="/pago" element={<Pago />} />
+          
           
 
           {/* INVENTARIO (Admin + Vendedor) */}
@@ -79,19 +86,28 @@ function App() {
           />
 
           <Route
-            path="/cuenta/cambiar-password"
+            path="/cuenta/mis-ordenes"
             element={
               <ProtectedRoute allowedRoles={["CLIENTE", "VENDEDOR", "ADMIN"]}>
-                <CambiarPassword />
+                <OrdenesCliente />
               </ProtectedRoute>
             }
           />
 
           <Route
-            path="/cuenta/mis-ordenes"
+            path="/mis-ordenes"
             element={
               <ProtectedRoute allowedRoles={["CLIENTE", "VENDEDOR", "ADMIN"]}>
-                <Ordenes />
+                <OrdenesCliente />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/mis-ordenes/:pedidoId"
+            element={
+              <ProtectedRoute allowedRoles={["CLIENTE", "VENDEDOR", "ADMIN"]}>
+                <OrdenDetalle />
               </ProtectedRoute>
             }
           />
@@ -125,6 +141,24 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["ADMIN"]}>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/ordenes"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <AdminOrdenes />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/ordenes/:pedidoId"
+            element={
+              <ProtectedRoute allowedRoles={["ADMIN"]}>
+                <AdminOrdenDetalle />
               </ProtectedRoute>
             }
           />

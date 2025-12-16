@@ -1,58 +1,229 @@
-/* === CARRITO TECHHIVE === */
-.carrito-panel {
-  background: var(--bg);
-  border-left: 2px solid var(--border);
-  box-shadow: -5px 0 15px rgba(46, 57, 72, 0.25);
+.cart-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 88px 16px 32px;
 }
 
-.cart-header {
-  background: var(--surface);
-  color: #fff;
-  border-bottom: 1px solid var(--border);
+.cart-head h1 {
+  font-size: 44px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
 }
 
-.cart-title {
-  font-family: var(--font-heading);
-  color: var(--primary);
+.cart-steps {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+  color: #6b7280;
+  font-size: 14px;
 }
 
-.cart-body {
-  background: var(--bg);
-  color: var(--text);
-  max-height: calc(100vh - 130px);
-  overflow-y: auto;
+.cart-steps .step {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.cart-steps .line {
+  width: 40px;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.cart-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+@media (max-width: 992px) {
+  .cart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cart-card {
+  background: rgba(255,255,255,.88);
+  border: 1px solid rgba(229,231,235,.85);
+  border-radius: 18px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.08);
+  backdrop-filter: blur(10px);
+}
+
+.cart-left {
+  padding: 16px;
 }
 
 .cart-item {
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 12px;
-  padding: 8px;
-  transition: transform 0.2s ease;
+  display: grid;
+  grid-template-columns: 92px 1fr auto;
+  align-items: start;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 16px;
 }
 
-.cart-item:hover {
-  transform: scale(1.02);
+.cart-item + .cart-item {
+  border-top: 1px solid rgba(229,231,235,.75);
 }
 
-.cart-img {
-  width: 60px;
-  height: 60px;
+.item-img {
+  width: 92px;
+  height: 92px;
+  border-radius: 14px;
   object-fit: contain;
-  border-radius: 8px;
+  background: #f3f4f6;
+  padding: 6px;
 }
 
-.delete-btn {
-  background: var(--primary-dark);
-  color: #fff;
-  border: none;
+.item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 2px;
 }
 
-.delete-btn:hover {
-  background: var(--primary);
+.item-title {
+  font-weight: 700;
+  margin: 0;
+  font-size: 17px;
 }
 
-.empty-cart {
+.item-sub {
+  color: #6b7280;
+  font-size: 13px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.item-stock {
+  margin-left: 4px;
+  color: #9ca3af;
+}
+
+.price-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.item-price {
+  font-weight: 800;
+  font-size: 18px;
+  margin: 0;
+}
+
+.qty {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.qty-inline {
+  margin-top: 0;
+}
+
+.qty button {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  font-weight: 700;
+}
+
+.qty span {
+  min-width: 24px;
   text-align: center;
-  color: var(--text-muted);
-  font-weight: 600;
+  font-weight: 700;
+}
+
+.item-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-top: 4px;
+}
+
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.icon-btn.danger {
+  border-color: rgba(239,68,68,.35);
+}
+
+.icon-btn svg {
+  width: 18px;
+  height: 18px;
+  color: #111827;
+}
+
+.item-line-total {
+  font-weight: 800;
+  color: #111827;
+  display: none;
+}
+
+.cart-right {
+  padding: 16px;
+  position: sticky;
+  top: 90px;
+  height: fit-content;
+}
+
+.summary-title {
+  font-weight: 800;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  color: #111827;
+}
+
+.summary-row span {
+  color: #6b7280;
+}
+
+.summary-divider {
+  height: 1px;
+  background: rgba(229,231,235,.85);
+  margin: 12px 0;
+}
+
+.summary-total {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.primary-btn {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 14px;
+  font-weight: 800;
+  margin-top: 12px;
+  background: #111827;
+  color: white;
+}
+
+.primary-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
 }

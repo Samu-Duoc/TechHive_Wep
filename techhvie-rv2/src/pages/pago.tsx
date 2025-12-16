@@ -1,121 +1,147 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import pedidosService from "../services/pedidosService";
 import { useAuth } from "../context/AuthContext";
 import { useCarrito } from "../context/CarritoContext";
-
-const BASE_URL = (import.meta as any).env?.VITE_API_URL ?? "http://localhost:8084";
+import "../styles/checkout.css";
 
 const Pago: React.FC = () => {
     const { usuario } = useAuth();
-    const { carrito, vaciarCarrito, carritoId } = useCarrito();
-    const [loading, setLoading] = useState(false);
+    const { items, total, clear } = useCarrito();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if (!usuario) {
-            const goLogin = window.confirm("Para pagar necesitas iniciar sesión. ¿Ir a iniciar sesión?");
-            if (goLogin) navigate('/login');
-            else navigate('/');
+    const methods = ["MASTERCARD ****5678", "VISA ****1122", "PAYPAL", "TRANSFERENCIA"];
+    const [selectedMethod, setSelectedMethod] = useState(methods[0]);
+    const [loading, setLoading] = useState(false);
+
+    const totalCalc = useMemo(() => total, [total]);
+    const canPay = !!usuario && items.length > 0 && !loading;
+
+    const handlePay = async () => {
+        if (!usuario || usuario.id == null) {
+        navigate("/login");
+        return;
         }
-    }, [usuario]);
+        if (items.length === 0) {
+        alert("El carrito está vacío");
+        return;
+        }
+
+        try {
+        setLoading(true);
+
+        const payload = {
+            usuarioId: usuario.id,
+            direccionId: "1",                 // igual que tu app (puedes ajustar después) :contentReference[oaicite:8]{index=8}
+            metodoPago: selectedMethod,
+            total: Number(totalCalc),
+            items: items.map((it) => ({
+            productoId: Number(it.productoId),
+            nombreProducto: it.nombre,
+            cantidad: Number(it.cantidad),
+            precioUnitario: Number(it.precio),
+            })),
+        };
+
+        const comprobante = await pedidosService.pagar(payload);
+
+        // Guardamos el comprobante (como ReceiptManager/TicketScreen) :contentReference[oaicite:9]{index=9}
+        localStorage.setItem("th_last_receipt", JSON.stringify(comprobante));
+
+        // Limpia carrito local (como Cart.clearCart()) :contentReference[oaicite:10]{index=10} :contentReference[oaicite:11]{index=11}
+        clear();
+
+        navigate("/ticket");
+        } catch (e: any) {
+        console.error(e);
+        const msg = e?.response?.data?.message || e?.message || "Error al pagar";
+        alert(msg);
+        } finally {
+        setLoading(false);
+        }
+    };
+
     return (
-        <div className="container mt-5 pt-5">
-            <div className="row justify-content-center">
-                <div className="col-md-8">
-                    <h1 className="text-center mb-4">Procesar Pago</h1>
-                    <div className="card">
-                        <div className="card-body">
-                            <form onSubmit={async (e) => {
-                                e.preventDefault();
-                                if (!usuario) {
-                                    alert('Necesitas iniciar sesión para completar el pago.');
-                                    return;
-                                }
+        <div className="checkout-bg">
+        <div className="checkout-shell">
+            <div className="checkout-steps">
+            <div className="step"><div className="step-dot">1</div> Carrito</div>
+            <div className="step-line" />
+            <div className="step"><div className="step-dot">2</div> Datos y pago</div>
+            <div className="step-line" />
+            <div className="step is-active"><div className="step-dot">3</div> Resumen</div>
+            <div className="step-line" />
+            <div className="step"><div className="step-dot">4</div> Listo</div>
+            </div>
 
-                                if (!carrito || carrito.length === 0) {
-                                    alert('Tu carrito está vacío');
-                                    return;
-                                }
+            <div className="checkout-grid">
+            {/* LEFT */}
+            <div className="d-flex flex-column gap-3">
+                <div className="section-card">
+                <div className="section-head">
+                    <div className="section-title">Detalles de la orden</div>
+                </div>
 
-                                setLoading(true);
-
-                                // Construir orden a enviar
-                                const items = carrito.map((p) => {
-                                    const productoId = p.sku ? String(p.sku) : String(p.id);
-                                    const cantidad = p.cantidad;
-                                    const subtotal = (p.precio * p.cantidad).toString(); // string for BigDecimal
-                                    return { productoId, cantidad, subtotal, precio: p.precio, titulo: p.titulo };
-                                });
-
-                                const total = carrito.reduce((s, p) => s + p.precio * p.cantidad, 0);
-
-                                // Enviar tanto 'items' como 'detalles' para cubrir distintos contratos de backend
-                                const orderPayload = {
-                                    usuarioId: usuario.id,
-                                    carritoId: carritoId,
-                                    items,
-                                    detalles: items,
-                                    total,
-                                };
-
-                                console.debug('Order payload enviado:', orderPayload);
-
-                                try {
-                                    // Intentar crear orden en backend (si existe servicio de órdenes)
-                                    const resp = await fetch(`${BASE_URL}/ordenes`, {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify(orderPayload),
-                                    });
-
-                                    if (resp.ok) {
-                                        const created = await resp.json();
-                                        console.debug('Orden creada en backend:', created);
-                                        // Guardar comprobante y vaciar carrito
-                                        try { localStorage.setItem('ultimoComprobante', JSON.stringify(created)); } catch {}
-                                        try { await vaciarCarrito(); } catch {}
-                                        // Redirigir con state
-                                        window.location.href = '/comprobante';
-                                        return;
-                                    } else {
-                                        let respBody = null;
-                                        try { respBody = await resp.json(); } catch { respBody = await resp.text(); }
-                                        console.warn('Creación de orden falló en backend, status=', resp.status, 'body=', respBody);
-                                    }
-                                } catch (err) {
-                                    console.error('Error creando orden en backend:', err);
-                                }
-
-                                // Fallback local: crear comprobante local y vaciar carrito
-                                const fallbackOrder = {
-                                    id: `LOCAL-${Date.now()}`,
-                                    items,
-                                    total,
-                                };
-                                try { localStorage.setItem('ultimoComprobante', JSON.stringify(fallbackOrder)); } catch {}
-                                try { await vaciarCarrito(); } catch {}
-                                window.location.href = '/comprobante';
-                            }}>
-                                <div className="mb-3">
-                                    <label htmlFor="cardNumber" className="form-label">Número de Tarjeta</label>
-                                    <input type="text" className="form-control" id="cardNumber" placeholder="1234 5678 9012 3456" required />
-                                </div>
-                                <div className="row mb-3">
-                                    <div className="col-md-6">
-                                        <label htmlFor="expiry" className="form-label">Fecha de Vencimiento</label>
-                                        <input type="text" className="form-control" id="expiry" placeholder="MM/YY" required />
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label htmlFor="cvv" className="form-label">CVV</label>
-                                        <input type="text" className="form-control" id="cvv" placeholder="123" required />
-                                    </div>
-                                </div>
-                                <button type="submit" className="btn btn-primary w-100" disabled={loading}>{loading ? 'Procesando...' : 'Pagar'}</button>
-                            </form>
+                <div className="order-items">
+                    {items.map((p) => (
+                    <div className="order-item" key={p.productoId}>
+                        <div>
+                        <div className="order-item-name">{p.nombre}</div>
+                        <div className="order-item-sub">{p.cantidad} pc</div>
+                        </div>
+                        <div className="order-item-price">
+                        ${Number(p.precio * p.cantidad).toFixed(0)}
                         </div>
                     </div>
+                    ))}
+                </div>
+                </div>
+
+                <div className="section-card">
+                <div className="section-head">
+                    <div className="section-title">Método de pago</div>
+                </div>
+
+                <div className="pay-card">
+                    <div className="pay-card-title">Tarjetas registradas</div>
+
+                    <div className="card-chips">
+                    {methods.map((m) => (
+                        <button
+                        key={m}
+                        type="button"
+                        className={`card-chip ${m === selectedMethod ? "is-selected" : ""}`}
+                        onClick={() => setSelectedMethod(m)}
+                        >
+                        <div className="card-chip-top">
+                            <div className="card-brand">{m.split(" ")[0]}</div>
+                            <div className="card-last4">{m.includes("****") ? m.split("****")[1] : "—"}</div>
+                        </div>
+                        <div className="card-chip-sub">{m}</div>
+                        </button>
+                    ))}
+                    </div>
+                </div>
                 </div>
             </div>
+
+            {/* RIGHT */}
+            <div className="summary">
+                <div className="summary-head">
+                <div className="summary-title">Total</div>
+                <div className="summary-total">${Number(totalCalc).toFixed(0)}</div>
+                </div>
+
+                <div className="summary-lines">
+                <div className="summary-line"><span>Subtotal</span><strong>${Number(totalCalc).toFixed(0)}</strong></div>
+                </div>
+
+                <button className="pay-btn" onClick={handlePay} disabled={!canPay}>
+                {loading ? "Procesando..." : `Pagar $${Number(totalCalc).toFixed(0)}`}
+                </button>
+            </div>
+            </div>
+        </div>
         </div>
     );
 };

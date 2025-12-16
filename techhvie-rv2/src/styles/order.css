@@ -14,8 +14,8 @@
   --font-heading: 'Audiowide', sans-serif;
 }
 
-/* === CONTENEDOR GENERAL === */
-.container {
+/* === CONTENEDOR GENERAL (scoped) === */
+.th-ticket .container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -26,8 +26,8 @@
               var(--bg);
 }
 
-/* === TARJETA DE COMPROBANTE === */
-.card {
+/* === TARJETA DE COMPROBANTE (scoped) === */
+.th-ticket .card {
   background: var(--surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -37,7 +37,7 @@
   animation: fadeIn 0.5s ease-in-out;
 }
 
-h2 {
+.th-ticket h2 {
   font-family: var(--font-heading);
   color: var(--primary-dark);
   font-size: 2rem;
@@ -45,7 +45,7 @@ h2 {
   margin-bottom: 1rem;
 }
 
-p {
+.th-ticket p {
   font-family: var(--font-main);
   color: var(--text-muted);
   text-align: center;
@@ -53,16 +53,16 @@ p {
   line-height: 1.6;
 }
 
-strong {
+.th-ticket strong {
   color: var(--text);
 }
 
-.border-bottom {
+.th-ticket .border-bottom {
   border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
 }
 
-/* === ICONO CARRITO O CABECERA === */
-.card::before {
+/* === ICONO CARRITO O CABECERA (scoped) === */
+.th-ticket .card::before {
   content: "🛍️";
   display: block;
   font-size: 3rem;
@@ -71,24 +71,24 @@ strong {
   animation: popIn 0.4s ease;
 }
 
-/* === DETALLES DE PRODUCTOS === */
-.card div.d-flex {
+/* === DETALLES DE PRODUCTOS (scoped) === */
+.th-ticket .card div.d-flex {
   font-family: var(--font-main);
 }
 
-.text-muted {
+.th-ticket .text-muted {
   color: var(--text-muted) !important;
   font-size: 0.95rem;
 }
 
-/* === TOTAL === */
-h4 {
+/* === TOTAL (scoped) === */
+.th-ticket h4 {
   color: var(--primary-dark);
   font-weight: 700;
 }
 
-/* === BOTONES === */
-.btn {
+/* === BOTONES (scoped) === */
+.th-ticket .btn {
   border: none;
   border-radius: 10px;
   padding: 12px 20px;
@@ -98,22 +98,22 @@ h4 {
   transition: all 0.3s ease;
 }
 
-.btn-primary {
+.th-ticket .btn-primary {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #fff;
 }
 
-.btn-primary:hover {
+.th-ticket .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 12px rgba(167, 109, 21, 0.3);
 }
 
-.btn-secondary {
+.th-ticket .btn-secondary {
   background: #eee;
   color: var(--text);
 }
 
-.btn-secondary:hover {
+.th-ticket .btn-secondary:hover {
   background: #ddd;
   transform: translateY(-2px);
 }
@@ -131,20 +131,20 @@ h4 {
 
 /* === RESPONSIVE === */
 @media (max-width: 576px) {
-  .card {
+  .th-ticket .card {
     padding: 1.5rem;
   }
 
-  h2 {
+  .th-ticket h2 {
     font-size: 1.6rem;
   }
 
-  .btn {
+  .th-ticket .btn {
     width: 100%;
     margin-top: 0.5rem;
   }
 
-  .d-flex.gap-2 {
+  .th-ticket .d-flex.gap-2 {
     flex-direction: column;
   }
 }

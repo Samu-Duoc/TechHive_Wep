@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ListGroup from 'react-bootstrap/ListGroup';
-import '../styles/Inventario.css';
+import '../styles/MenuPerfil.css';
 
 interface Props {
     role?: string | null;

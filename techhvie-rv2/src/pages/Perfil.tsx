@@ -103,7 +103,7 @@ const Perfil: React.FC = () => {
               <button className="btn btn-warning" onClick={() => window.location.href = "/cuenta/editar"}>
                 Editar perfil
               </button>
-              <button className="btn btn-primary" onClick={() => window.location.href = "/cuenta/cambiar-password"}>
+              <button className="btn btn-primary" onClick={() => window.location.href = "/recover-password"}>
                 Cambiar contraseña
               </button>
               <button className="btn btn-outline-dark" onClick={() => { logout(); window.location.href = "/"; }}>

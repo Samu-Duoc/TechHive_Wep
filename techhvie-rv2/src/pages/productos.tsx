@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
-// Ajusta estas rutas a tus archivos reales:
-import { useCarrito } from "../context/CarritoContext";
+import { useNavigate } from "react-router-dom";
 import { useReveal } from "../hooks/useReveal";
 import Notificacion from "../components/Notificacion";
 import Dropdown from "react-bootstrap/Dropdown";
 import "../styles/global.css";
 import "../styles/productos.css";
 
-const BASE_URL = (import.meta as any).env?.VITE_API_URL ?? "http://localhost:8082";
+const BASE_URL =
+    (import.meta as any).env?.VITE_API_URL ?? "http://localhost:8082";
 
 interface Producto {
     id: number;
@@ -19,36 +19,31 @@ interface Producto {
     precio: number;
     demoUrl?: string;
     codeUrl?: string;
-
-    // Opcionales para conectar con MS o variantes
     stock?: number;
     sku?: string;
-    }
+}
 
-
-    const Productos: React.FC = () => {
+const Productos: React.FC = () => {
     useReveal();
-    const { agregarAlCarrito } = useCarrito();
+
+    // carrito LOCAL (no usado aquí; se gestiona en detalle)
 
     const [notificacion, setNotificacion] = useState<string | null>(null);
 
-    // Productos desde API
     const [productos, setProductos] = useState<Producto[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Categorías (lista filtrable)
     const [categories, setCategories] = useState<string[]>([]);
     const [categoriaActiva, setCategoriaActiva] = useState<string>("all");
     const [terminoBusqueda, setTerminoBusqueda] = useState<string>("");
 
-    // Vista previa
-    const [productoSeleccionado, setProductoSeleccionado] =
-        useState<Producto | null>(null);
-    const [cantidadVista, setCantidadVista] = useState<number>(1);
+    const navigate = useNavigate();
 
-    // Preparar lista de categorías para UI (incluye 'all')
-    const categorias = useMemo(() => ["all", ...categories], [categories]);
+    const categorias = useMemo(
+        () => ["all", ...categories],
+        [categories]
+    );
 
     const productosFiltrados = useMemo(() => {
         return productos.filter((p) => {
@@ -60,25 +55,24 @@ interface Producto {
             termino === "" ||
             p.titulo.toLowerCase().includes(termino) ||
             p.descripcion.toLowerCase().includes(termino) ||
-            (p.tags || []).some((tag) => tag.toLowerCase().includes(termino));
+            (p.tags || []).some((tag) =>
+            tag.toLowerCase().includes(termino)
+            );
 
         return coincideCategoria && coincideBusqueda;
         });
     }, [productos, categoriaActiva, terminoBusqueda]);
 
-    // Fetch productos y categorias desde la API
     useEffect(() => {
         const fetchData = async () => {
         setLoading(true);
         setError(null);
         try {
-            // Productos
             const resp = await fetch(`${BASE_URL}/productos`);
-            if (!resp.ok) throw new Error(`Productos API responded ${resp.status}`);
+            if (!resp.ok) throw new Error(`API responded ${resp.status}`);
             const data = await resp.json();
             setProductos(Array.isArray(data) ? data : []);
 
-            // Categorías: preferir endpoint /categorias
             try {
             const catResp = await fetch(`${BASE_URL}/categorias`);
             if (catResp.ok) {
@@ -86,20 +80,30 @@ interface Producto {
                 const normalized = (rawCats || [])
                 .map((c: any) => c.nombre ?? c.name ?? null)
                 .filter(Boolean) as string[];
-                const uniques = Array.from(new Set(normalized));
-                setCategories(uniques);
+                setCategories(Array.from(new Set(normalized)));
             } else {
-                // Fallback: derive from productos
-                const derived = Array.from(new Set((Array.isArray(data) ? data : []).map((p: any) => p.categoria).filter(Boolean)));
+                const derived = Array.from(
+                new Set(
+                    (Array.isArray(data) ? data : [])
+                    .map((p: any) => p.categoria)
+                    .filter(Boolean)
+                )
+                );
                 setCategories(derived);
             }
-            } catch (catErr) {
-            const derived = Array.from(new Set((Array.isArray(data) ? data : []).map((p: any) => p.categoria).filter(Boolean)));
+            } catch {
+            const derived = Array.from(
+                new Set(
+                (Array.isArray(data) ? data : [])
+                    .map((p: any) => p.categoria)
+                    .filter(Boolean)
+                )
+            );
             setCategories(derived);
             }
         } catch (err: any) {
-            console.error("Error de products/categories:", err);
-            setError(String(err?.message ?? err));
+            console.error(err);
+            setError(err?.message ?? String(err));
         } finally {
             setLoading(false);
         }
@@ -108,43 +112,71 @@ interface Producto {
         void fetchData();
     }, []);
 
-    useEffect(() => {
-        if (!productoSeleccionado) setCantidadVista(1);
-    }, [productoSeleccionado]);
-
     const getProductImage = (p: Producto) => {
-        const anyP = p as any;
-        if (anyP.imagen && typeof anyP.imagen === "string") {
-        if (anyP.imagen.startsWith("http") || anyP.imagen.startsWith("/") || anyP.imagen.startsWith("data:")) return anyP.imagen;
-        }
-        if (anyP.imagenBase64) return `data:image/*;base64,${anyP.imagenBase64}`;
-        return "/img/logo.jpg";
+    const img: any = (p as any).imagen ?? (p as any).imagenBase64;
+
+    if (!img) return "/img/logo.jpg";
+
+    if (typeof img === "string" && img.startsWith("data:image")) {
+        return img;
+    }
+
+    if (
+        typeof img === "string" &&
+        (img.startsWith("http") || img.startsWith("/"))
+    ) {
+        return img;
+    }
+
+    if (typeof img === "string" && img.length > 100) {
+        return `data:image/jpeg;base64,${img}`;
+        // si usas png puedes cambiar a image/png
+    }
+
     };
+
 
     return (
         <div className="productos-page container mt-5 pt-2">
-        <h2 className="mb-4 text-center productos-title">Productos</h2> 
+        <h2 className="mb-4 text-center productos-title">Productos</h2>
 
-        {/* Filtros */}
+        {/* FILTROS */}
         <div className="row mb-4 align-items-center">
             <div className="col-md-3 mb-2 mb-md-0">
             <Dropdown className="category-dropdown">
-                <Dropdown.Toggle id="categoria-dropdown" className="w-100 text-start" as="button">
-                {categoriaActiva === "all" ? "Categorías: Todos" : `Categoría: ${categoriaActiva}`}
+                <Dropdown.Toggle
+                id="categoria-dropdown"
+                className="w-100 text-start"
+                as="button"
+                >
+                {categoriaActiva === "all"
+                    ? "Categorías: Todos"
+                    : `Categoría: ${categoriaActiva}`}
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu>
-                <Dropdown.Item key="all" active={categoriaActiva === "all"} onClick={() => setCategoriaActiva("all")}>Todos</Dropdown.Item>
+                <Dropdown.Item
+                    active={categoriaActiva === "all"}
+                    onClick={() => setCategoriaActiva("all")}
+                >
+                    Todos
+                </Dropdown.Item>
+
                 {categorias
                     .filter((c) => c !== "all")
                     .map((cat) => (
-                    <Dropdown.Item key={cat} active={categoriaActiva === cat} onClick={() => setCategoriaActiva(cat)}>
+                    <Dropdown.Item
+                        key={cat}
+                        active={categoriaActiva === cat}
+                        onClick={() => setCategoriaActiva(cat)}
+                    >
                         {cat}
                     </Dropdown.Item>
                     ))}
                 </Dropdown.Menu>
             </Dropdown>
             </div>
+
             <div className="col-md-9">
             <input
                 type="text"
@@ -159,7 +191,7 @@ interface Producto {
         {loading && <p className="text-center">Cargando productos...</p>}
         {error && <div className="alert alert-danger">{error}</div>}
 
-        {/* Grid de productos */}
+        {/* GRID */}
         <div className="row g-4">
             {productosFiltrados.length === 0 ? (
             <p className="text-center">No se encontraron productos.</p>
@@ -173,11 +205,11 @@ interface Producto {
                         className="card-img-top productos-img"
                         alt={producto.titulo}
                         onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "/img/logo.jpg"; // fallback
+                        (e.target as HTMLImageElement).src = "/img/logo.jpg";
                         }}
                     />
                     </div>
+
                     <div className="card-body d-flex flex-column">
                     <h5 className="card-title">{producto.titulo}</h5>
                     <p className="card-text text-muted mb-1">
@@ -186,17 +218,10 @@ interface Producto {
                     <p className="card-text productos-descripcion">
                         {producto.descripcion}
                     </p>
-                    <p className="card-text small text-muted">
-                        {producto.tags && producto.tags.length > 0 && (
-                        <>Tags: {producto.tags.join(", ")}</>
-                        )}
-                    </p>
 
                     <div className="mt-auto">
-                        <p className="card-text">
-                        <strong>
-                            Precio: ${producto.precio.toLocaleString("es-CL")}
-                        </strong>
+                        <p className="card-text fw-bold">
+                        ${producto.precio.toLocaleString("es-CL")}
                         </p>
 
                         <button
@@ -206,16 +231,11 @@ interface Producto {
                             "linear-gradient(135deg, var(--primary), var(--primary-dark))",
                             color: "black",
                             fontWeight: 600,
-                            border: "none",
                             borderRadius: "10px",
-                            boxShadow: "0 4px 12px rgba(231, 182, 43, 0.3)",
                         }}
-                        onClick={() => {
-                            setProductoSeleccionado(producto);
-                            setCantidadVista(1);
-                        }}
+                        onClick={() => navigate(`/productos/${producto.id}`)}
                         >
-                        👁️ Ver vista previa
+                        👁️ Ver detalle
                         </button>
                     </div>
                     </div>
@@ -224,132 +244,6 @@ interface Producto {
             ))
             )}
         </div>
-
-        {/* VISTA PREVIA (modal/card flotante) */}
-        {productoSeleccionado && (
-            <div
-            className="preview-backdrop"
-            onClick={() => setProductoSeleccionado(null)}
-            >
-            <div
-                className="preview-card"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <button
-                    aria-label="Cerrar vista previa"
-                    className="preview-close-btn"
-                    onClick={() => setProductoSeleccionado(null)}
-                >
-                    ×
-                </button>
-                <div className="row">
-                <div className="col-md-5 d-flex justify-content-center align-items-center mb-3 mb-md-0">
-                    <img
-                    src={getProductImage(productoSeleccionado)}
-                    alt={productoSeleccionado.titulo}
-                    style={{
-                        maxWidth: "100%",
-                        maxHeight: "260px",
-                        objectFit: "contain",
-                    }}
-                    onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "/img/logo.jpg";
-                    }}
-                    />
-                </div>
-
-                <div className="col-md-7">
-                    <h3>{productoSeleccionado.titulo}</h3>
-                    <p className="text-muted mb-1">
-                    Categoría: {productoSeleccionado.categoria}
-                    </p>
-
-                    {productoSeleccionado.tags && (
-                    <p className="small">
-                        Tags: {productoSeleccionado.tags.join(", ")}
-                    </p>
-                    )}
-
-                    <p className="mt-3">{productoSeleccionado.descripcion}</p>
-
-                    <h4 className="mt-3">
-                    ${productoSeleccionado.precio.toLocaleString("es-CL")}
-                    </h4>
-
-                    {productoSeleccionado.stock !== undefined && (
-                    <p className="mt-2">
-                        Stock disponible:{" "}
-                        <strong>{productoSeleccionado.stock}</strong>
-                    </p>
-                    )}
-
-                    {/* FUTURO: variantes por color según SKU */}
-                    {/* 
-                    {productoSeleccionado.sku && (
-                    <ColorVariants sku={productoSeleccionado.sku} />
-                    )}
-                    */}
-
-                    <div className="d-flex align-items-center mt-3">
-                    <label className="me-2">Cantidad:</label>
-                    <div className="input-group" style={{ maxWidth: "150px" }}>
-                        <button
-                        className="btn btn-outline-secondary"
-                        type="button"
-                        onClick={() =>
-                            setCantidadVista((prev) => (prev > 1 ? prev - 1 : 1))
-                        }
-                        >
-                        -
-                        </button>
-                        <input
-                        type="number"
-                        className="form-control text-center"
-                        value={cantidadVista}
-                        readOnly
-                        />
-                        <button
-                        className="btn btn-outline-secondary"
-                        type="button"
-                        onClick={() =>
-                            setCantidadVista((prev) => (prev < 10 ? prev + 1 : 10))
-                        }
-                        >
-                        +
-                        </button>
-                    </div>
-                    </div>
-
-                    <button
-                    className="btn w-100 mt-3"
-                    style={{
-                        background:
-                        "linear-gradient(135deg, var(--primary), var(--primary-dark))",
-                        color: "black",
-                        fontWeight: 600,
-                        border: "none",
-                        borderRadius: "10px",
-                        boxShadow: "0 4px 12px rgba(231, 182, 43, 0.3)",
-                    }}
-                    onClick={() => {
-                        agregarAlCarrito({
-                        ...productoSeleccionado,
-                        cantidad: cantidadVista,
-                        } as any);
-                        setNotificacion("AGREGADO AL CARRITO");
-                        setProductoSeleccionado(null);
-                    }}
-                    >
-                    🛒 Añadir al carrito
-                    </button>
-                </div>
-                </div>
-            </div>
-            </div>
-        )}
-
-        {/* Notificación */}
         {notificacion && (
             <Notificacion
             mensaje={notificacion}
